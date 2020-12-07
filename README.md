@@ -53,18 +53,18 @@ See `index.html` for an example of how to use.
 
 ### Options
 
-* width (number) :  _the width of the resulting vector image exported, in pixels. If not specified, the svg's width on the DOM is used_
-* height (number) :  _the height of the resulting vector image exported, in pixels. If not specified, the svg's height on the DOM is used_
-* scale (number) :  _a multiple by which the svg can be increased or decreased in size. For PNG and JPEG exports, if width, height and scale are not specified, scale is set to 10x enlargement to ensure that a higher resolution image is produced._
+* width (number) :  _the width of the resulting vector image exported, in pixels. Default is the svg's width on the DOM_
+* height (number) :  _the height of the resulting vector image exported, in pixels. Default is the svg's height on the DOM_
+* scale (number) :  _a multiple by which the svg can be increased or decreased in size. For PNG and JPEG exports, if width, height and scale are not specified, scale is set to `10` for a 10x enlargement to ensure that a higher resolution image is produced. Otherwise, the default scale is `1`_
 * useCSS (bool):  _if SVG styles are specified in stylesheet rather than inline, setting `true` will add references to such styles from the styles computed by the browser. Default is `true`_
 * PDFOptions
     * pageLayout (object): _e.g. `{ margin: 50, layout: "landscape" }`.  This is provided to PDFKit's `addPage`. Please see the [PDFKit documentation](https://pdfkit.org/docs/getting_started.html#adding_pages) for more info_
-    * addTitleToPage (bool): _Default is true_
+    * addTitleToPage (bool): _Default is `true`_
     * chartCaption (string) _caption to appear at the bottom of the chart in the PDF.  Default is no caption_
-    * PDFtextFontFamily (string): _Font family of title and caption (if applicable) in PDF. See here for a [list of available fonts](http://pdfkit.org/docs/text.html#fonts). Default is Helvetica_
-    * PDFTitleFontSize (number): _Default is 20_
-    * PDFCaptionFontSize (number):  _Default is 14_
-    * customFonts (array of objects): _e.g. `{ fontName: 'FakeFont', url: 'fonts/FakeFont.ttf'}`. Each object must have two properties: `fontName` for the font name that appears in the CSS/SVG, and `url` for the URL of the custom font file to be used in the PDF. A third property `styleName` specifying the style name to be used can be specified for multi-collection font files (.ttc and .dfont files)_ 
+    * PDFtextFontFamily (string): _Font family of title and caption (if applicable) in PDF. See here for a [list of available fonts](http://pdfkit.org/docs/text.html#fonts). Default is `Helvetica`_
+    * PDFTitleFontSize (number): _Default is `20`_
+    * PDFCaptionFontSize (number):  _Default is `14`_
+    * customFonts (array of objects): _Optional argument for custom fonts. e.g. `[{ fontName: 'FakeFont', url: 'fonts/FakeFont.ttf'}]`. Each object must have two properties: `fontName` for the font name that appears in the CSS/SVG, and `url` for the URL of the custom font file to be used in the PDF. A third property `styleName` specifying the style name to be used can be specified for multi-collection font files (.ttc and .dfont files)_ 
 
     
 Regarding embedded custom fonts used in the SVG element (using @font-face for example), please note that for SVG export, custom fonts only show correctly if the system opening the SVG file has the font installed.  If this is not possible, please consider using one of the other file formats available.
