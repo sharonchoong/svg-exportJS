@@ -1,7 +1,7 @@
 # svg-exportJS
 
 An easy-to-use client-side library to export svg charts from the DOM and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Originally written for D3.js charts.
-Demo available [here](https://sharonchoong.github.io/svg-export/index.html).
+Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
 ## Getting Started
 
@@ -27,10 +27,10 @@ Either download the plugin and save it in your project, or use script-tags in yo
 * Download the plugin `svg-export.min.js` from this repo, and add it to your project. 
 * Add the plugin using the file hosted on Github Pages. Place the script within the `<head>` tag in your html files (place prerequisites first):
    ```html
-   <!-- svg-export prerequisite: canvg -->
+   <!-- svg-exportJS prerequisite: canvg -->
    <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
-   <!-- svg-export plugin -->
-   <script src="https://sharonchoong.github.io/svg-export/svg-export.min.js"></script>
+   <!-- svg-exportJS plugin -->
+   <script src="https://sharonchoong.github.io/svg-exportJS/svg-export.min.js"></script>
    ```
 
 ## Usage
