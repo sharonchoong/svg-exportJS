@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            circle {
+                fill: red;
+            }
+            @font-face {
+                font-family: 'Segan';
+                src: url('fonts/Segan/Segan-Light.ttf') format('truetype');
+            }
+        </style>
+        <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.11.0/js/pdfkit.standalone.js"></script>
+        <script src="https://github.com/devongovett/blob-stream/releases/download/v0.1.3/blob-stream.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.min.js"></script>
+        <script src="svg-export.min.js"></script>
+    </head>
+    <body>
+        <div>
+            <h1>svg-exportJS</h1>
+            <p>Github repo: <a href="https://github.com/sharonchoong/svg-exportJS">https://github.com/sharonchoong/svg-exportJS</a></p>
+            <h3>Demo</h3>
+            <svg id="mysvg" width="100%" height="500">
+                <g class="rects">
+                    <rect x="300" y="40" width="40" height="40" fill="black" stroke="black"></rect>
+                    <rect x="50" y="100" width="500" height="200" fill="orange" stroke="gray" opacity="0.5"></rect>
+                </g>
+                <g class="circles">
+                    <circle cx="100" cy="100" r="100" fill="green" stroke="yellow" opacity="0.2"></circle>
+                    <circle cx="200" cy="100" r="50" fill="blue" stroke="blue" opacity="0.5"></circle>
+                    <circle cx="400" cy="200" r="150" fill="red" stroke="green" opacity="0.8"></circle>
+                </g>
+                <text x="200" y="200" style="font-family: 'Segan', Arial;" font-size="20">Testing 123</text>
+            </svg>
+        </div>
+        <div>
+            <button id="btn_export_svg">SVG</button>
+            <button id="btn_export_png">PNG</button>
+            <button id="btn_export_jpeg">JPEG</button>
+            <button id="btn_export_pdf">PDF</button>
+        </div>
+    </body>
+    <script>
+        document.querySelector("#btn_export_svg").onclick = function(){
+            svgExport.downloadSvg("#mysvg", "Circles and rectangles chart");
+        };
+        document.querySelector("#btn_export_png").onclick = function(){
+            svgExport.downloadPng("#mysvg", "Circles and rectangles chart", { width: 500, height: 500, scale: 1 });
+        };
+        document.querySelector("#btn_export_jpeg").onclick = function(){
+            svgExport.downloadJpeg("#mysvg", "Circles and rectangles chart");
+        };
+        document.querySelector("#btn_export_pdf").onclick = function(){
+            svgExport.downloadPdf("#mysvg", "Circles and rectangles chart", { 
+                PDFOptions: {
+                    chartCaption: "Hi there.  This is a test chart caption. ", 
+                    PDFtextFontFamily: "Segan",
+                    customFonts: [ { url: "fonts/Segan/Segan-Light.ttf", fontName: "Segan" } ]
+                } 
+            });
+        };
+    </script>
+</html>
