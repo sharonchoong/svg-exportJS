@@ -1,6 +1,6 @@
 # svg-exportJS
 
-An easy-to-use client-side library to export svg charts from the DOM and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Originally written for D3.js charts.
+An easy-to-use client-side Javascript library to export svg charts from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. This library automatically handles external CSS in SVG elements, custom embedded fonts, transparent backgrounds turning black in JPEG, and other quirks of exporting SVG from the DOM. Written in pure javascript. Originally created to export D3.js charts.
 Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
 ## Getting Started
@@ -72,6 +72,11 @@ Regarding embedded custom fonts used in the SVG element (using @font-face for ex
 
 Need to add SVG charts to Office Word, Excel or Powerpoint presentations? [SVG files can be inserted as a picture](https://support.microsoft.com/en-us/office/edit-svg-images-in-microsoft-office-365-69f29d39-194a-4072-8c35-dbe5e7ea528c) for non-pixelated graphics in Office 2016 or later, including Office 365.
 
+## Roadmap
+- [ ] Test external images within SVGs
+- [ ] Test color formats (RGB, hex, string, CMYK)
+- [ ] Allow serialized SVG string or external SVG document as input
+- [ ] Set up package.json and publish to npm
 
 
 ## Contributing
