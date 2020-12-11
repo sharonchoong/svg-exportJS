@@ -6,16 +6,18 @@
  * https://sharonchoong.github.io/svg-export
  *
  */
+
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-    typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.svgExport = global.svgExport || {}));
+    /*global globalThis a*/ 
+    typeof exports === "object" && typeof module !== "undefined" ? factory(exports) :
+    typeof define === "function" && define.amd ? define(["exports"], factory) :
+    (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.svgExport = global.svgExport || {}));
 } (this, (function (exports) {
     "use strict";
     var version = "1.0.0";
     var _options = {};
 
-    function setOptions(svg_selector, options) {
+    function setOptions(svgSelector, options) {
         //initialize options
         _options = {
             width: 100,
@@ -35,13 +37,13 @@
 
         //custom options
         if (!options || !options.height) {
-            _options.height = document.querySelector(svg_selector).getBBox().height * _options.scale;
+            _options.height = document.querySelector(svgSelector).getBBox().height * _options.scale;
         }
         else if (typeof options.height === "number") {
             _options.height = options.height * _options.scale;
         }
         if (!options || !options.width) {
-            _options.width = document.querySelector(svg_selector).getBBox().width * _options.scale;
+            _options.width = document.querySelector(svgSelector).getBBox().width * _options.scale;
         }
         else if (typeof options.width === "number") {
             _options.width = options.width * _options.scale;
@@ -49,7 +51,7 @@
         if (options && options.scale && typeof options.scale === "number") {
             _options.scale = options.scale;
         }
-        if (options && options.useCSS && typeof getComputedStyle !== 'function'){
+        if (options && options.useCSS && typeof getComputedStyle !== "function"){
             _options.useCSS = false;
             alert("Warning svg-export: this browser is not able to get computed styles");
         } else if (options && options.useCSS === false) {
@@ -58,7 +60,7 @@
 
         ["customFonts", "pageLayout", "addTitleToPage", "chartCaption", "PDFtextFontFamily", "PDFTitleFontSize", "PDFCaptionFontSize"].forEach(function(opt) {
             if (options && options.PDFOptions && options.PDFOptions[opt] && typeof options.PDFOptions[opt] === typeof _options.PDFOptions[opt]) {
-                if (options.PDFOptions[opt] === "") return;
+                if (options.PDFOptions[opt] === "") { return; }
                 _options.PDFOptions[opt] = options.PDFOptions[opt];
             }
             if (opt === "pageLayout") {
@@ -87,29 +89,29 @@
     }
 
     function useCSSfromComputedStyles(element, elementClone) {
-        for (var i = 0; i < element.children.length; i++){
-            useCSSfromComputedStyles(element.children[i], elementClone.children[i]);
-        }
+        element.children.forEach(function(child, index){
+            useCSSfromComputedStyles(child, elementClone.children[parseInt(index)]);
+        });
         
         var compStyles = window.getComputedStyle(element);
-        for (var j = 0; j < compStyles.length; j++){
-            if (["width", "height", "inline-size", "block-size"].indexOf(compStyles[j]) === -1 ) {
-                elementClone.style[compStyles[j]] = compStyles.getPropertyValue(compStyles[j]);
+        compStyles.forEach(function (compStyle){
+            if (["width", "height", "inline-size", "block-size"].indexOf(compStyle) === -1 ) {
+                elementClone.style[compStyle] = compStyles.getPropertyValue(compStyle);
             }
-        }
+        });
     }
 
-    function getSvg(svg_selector, asString = true)
+    function getSvg(svgSelector, asString = true)
     {
-        var svg = document.querySelector(svg_selector).cloneNode(true);
+        var svg = document.querySelector(svgSelector).cloneNode(true);
         if (_options.useCSS) {
-            useCSSfromComputedStyles(document.querySelector(svg_selector), svg);
+            useCSSfromComputedStyles(document.querySelector(svgSelector), svg);
         }
 
         svg.setAttribute("width", _options.width);
         svg.setAttribute("height", _options.height);
         svg.setAttribute("preserveAspectRatio", "none");
-        svg.setAttribute("viewBox", "0 0 " + (document.querySelector(svg_selector).getBBox().width) + " " + (document.querySelector(svg_selector).getBBox().height));
+        svg.setAttribute("viewBox", "0 0 " + (document.querySelector(svgSelector).getBBox().width) + " " + (document.querySelector(svgSelector).getBBox().height));
 
         //get svg string
         if (asString)
@@ -119,10 +121,10 @@
 
             //add namespaces
             if (!svgString.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
-                svgString = svgString.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+                svgString = svgString.replace(/^<svg/, "<svg xmlns=\"http://www.w3.org/2000/svg\"");
             }
             if (!svgString.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
-                svgString = svgString.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+                svgString = svgString.replace(/^<svg/, "<svg xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
             }
     
             return svgString;
@@ -130,36 +132,39 @@
         return svg;
     }
 
-    function getCustomFonts(font_urls) {
+    function getCustomFonts(fontUrls) {
         var promises = [];
-        for (var i = 0; i < font_urls.length; i++) {
-            var promise = new Promise((resolve, reject) => {
+        fontUrls.forEach(function(fontUrl) {
+            var promise = new Promise(function(resolve, reject) {
                 var req = new XMLHttpRequest();
                 req.onreadystatechange = function() { 
-                    if (req.readyState == 4 && req.status == 200) {
+                    if (req.readyState === 4 && req.status === 200) {
                         resolve(req.response);
                     }
-                }
-                req.open("GET", font_urls[i], true); 
+                };
+                req.open("GET", fontUrl, true); 
                 req.responseType = "arraybuffer";
                 req.send(null);
             });
             promises.push(promise);
-        }
+        });
         return promises;
     }
 
     function triggerDownload(uri, name, canvas) {
-        name = name.replace(/[/\\?%*:|"<>]/g, '_');
+        name = name.replace(/[/\\?%*:|"<>]/g, "_");
         if (navigator.msSaveBlob) {
-            var binary = (decodeURIComponent(uri.split(',')[1])), array = [];
-            var mimeString = uri.split(',')[0].split(':')[1].split(';')[0];
-            for (var i = 0; i < binary.length; i++) array.push(binary.charCodeAt(i));
+            var binary = (decodeURIComponent(uri.split(",")[1])), array = [];
+            var mimeString = uri.split(",")[0].split(":")[1].split(";")[0];
+            for (var i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
             var blob = null;
-            if (canvas != null)
-                blob = canvas.msToBlob()
-            else
+            if (canvas != null) {
+                blob = canvas.msToBlob();
+            } else {
                 blob = new Blob([new Uint8Array(array)], { type: mimeString });
+            }
             return navigator.msSaveBlob(blob, name);
         } else {
             var link = document.createElement("a");
@@ -171,69 +176,73 @@
         }
     }
 
-    function download_svg(svg_selector, svg_name, options) {
-        if (svg_name == null)
-            svg_name = "chart";
+    function downloadSvg(svgSelector, svgName, options) {
+        if (svgName == null) {
+            svgName = "chart";
+        }
 
         //get svg element
-        setOptions(svg_selector, options);
-        var svgString = getSvg(svg_selector);
+        setOptions(svgSelector, options);
+        var svgString = getSvg(svgSelector);
 
         //add xml declaration
-        svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
+        svgString = "<?xml version=\"1.0\" standalone=\"no\"?>\r\n" + svgString;
 
         //convert svg string to URI data scheme.
         var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
 
-        triggerDownload(url, svg_name + ".svg");
+        triggerDownload(url, svgName + ".svg");
     }
 
-    function download_png(svg_selector, svg_name, options) {
-        download_raster(svg_selector, svg_name, options, "png");
-    }
-    function download_jpeg(svg_selector, svg_name, options) {
-        download_raster(svg_selector, svg_name, options, "jpeg");
-    }
-    function download_raster(svg_selector, svg_name, options, image_type) {
+    function downloadRaster(svgSelector, svgName, options, imageType) {
         //check dependency and values
-        if (typeof canvg !== 'object')
+        if (typeof canvg !== "object")
         {
             alert("Error svg-export: PNG/JPEG export requires Canvg.js");
             return;
         }
-        image_type = image_type.toLowerCase().replace("jpg", "jpeg");
-        if (image_type !== "png" && image_type !== "jpeg")
-            image_type = "png";
+        imageType = imageType.toLowerCase().replace("jpg", "jpeg");
+        if (imageType !== "png" && imageType !== "jpeg") {
+            imageType = "png";
+        }
 
-        if (svg_name == null)
-            svg_name = "chart";
+        if (svgName == null) {
+            svgName = "chart";
+        }
 
         //get canvas and svg element.
         var canvas = document.createElement("canvas");
-        if (!(options && (options.width || options.height)))
+        if (!(options && (options.width || options.height))) {
             _options.scale = 10;
-        setOptions(svg_selector, options);
-        var svgString = getSvg(svg_selector);
+        }
+        setOptions(svgSelector, options);
+        var svgString = getSvg(svgSelector);
 
-        if (image_type === "jpeg")
+        if (imageType === "jpeg")
         {
             //change transparent background to white
-            svgString = svgString.replace(">", "><rect x='0' y='0' width='" + _options.width + "' height='" + _options.height + "' fill='white'/>");
+            svgString = svgString.replace(">", "><rect x=\"0\" y=\"0\" width=\"" + _options.width + "\" height=\"" + _options.height + "\" fill=\"white\"/>");
         }
 
-        var ctx = canvas.getContext('2d');
+        var ctx = canvas.getContext("2d");
         canvg.Canvg.fromString(ctx, svgString).start();
 
-        var image = canvas.toDataURL("image/" + image_type);
-        triggerDownload(image, svg_name + "." + image_type, canvas);
+        var image = canvas.toDataURL("image/" + imageType);
+        triggerDownload(image, svgName + "." + imageType, canvas);
+    }
+    function downloadPng(svgSelector, svgName, options) {
+        downloadRaster(svgSelector, svgName, options, "png");
+    }
+    function downloadJpeg(svgSelector, svgName, options) {
+        downloadRaster(svgSelector, svgName, options, "jpeg");
     }
 
-    function fillPDFDoc(doc, svg_name, svg) {
+    function fillPDFDoc(doc, svgName, svg) {
         // -title
         if (_options.PDFOptions.addTitleToPage){
             doc.font(_options.PDFOptions.PDFtextFontFamily)
                 .fontSize(_options.PDFOptions.PDFTitleFontSize)
-                .text(svg_name,
+                .text(svgName,
                 { 
                     width: _options.PDFOptions.pageLayout.size[0] - _options.PDFOptions.pageLayout.margins.left - _options.PDFOptions.pageLayout.margins.right
                 });              
@@ -253,19 +262,20 @@
                 });              
         }
     }
-    function download_pdf(svg_selector, svg_name, options) {
+    function downloadPdf(svgSelector, svgName, options) {
         //check dependency and values
-        if (typeof PDFDocument !== 'function' || typeof SVGtoPDF !== 'function')
+        if (typeof PDFDocument !== "function" || typeof SVGtoPDF !== "function")
         {
             alert("Error svg-export: PDF export requires PDFKit.js and SVG-to-PDFKit");
             return;
         }
-        if (svg_name == null)
-            svg_name = "chart";
+        if (svgName == null) {
+            svgName = "chart";
+        }
 
         //get svg element
-        setOptions(svg_selector, options);
-        var svg = getSvg(svg_selector, false);
+        setOptions(svgSelector, options);
+        var svg = getSvg(svgSelector, false);
 
         //create PDF doc
         var doc = new PDFDocument(_options.PDFOptions.pageLayout);
@@ -275,34 +285,34 @@
         if (_options.PDFOptions.customFonts.length > 0){
             var promises = getCustomFonts(_options.PDFOptions.customFonts.map(function(d) { return d.url; }));
             Promise.all(promises).then(function(fonts) {
-                for (var i = 0; i < fonts.length; i++) {
+                fonts.forEach(function(font, index) {
                     //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
-                    var font_styled_elements = svg.querySelectorAll("[style*='" +_options.PDFOptions.customFonts[i].fontName + "']");
-                    for (var j = 0; j < font_styled_elements.length; j++) {
-                        font_styled_elements[j].style.fontFamily = _options.PDFOptions.customFonts[i].fontName;
-                    }
+                    var fontStyledElements = svg.querySelectorAll("[style*=\"" +_options.PDFOptions.customFonts[parseInt(index)].fontName + "\"]");
+                    fontStyledElements.forEach(function(element) {
+                        element.style.fontFamily = _options.PDFOptions.customFonts[parseInt(index)].fontName;
+                    });
 
-                    doc.registerFont(_options.PDFOptions.customFonts[i].fontName, fonts[i], _options.PDFOptions.customFonts[i].styleName);
-                }
-                fillPDFDoc(doc, svg_name, svg);
+                    doc.registerFont(_options.PDFOptions.customFonts[parseInt(index)].fontName, font, _options.PDFOptions.customFonts[parseInt(index)].styleName);
+                });
+                fillPDFDoc(doc, svgName, svg);
                 doc.end();
             });
         } else {
-            fillPDFDoc(doc, svg_name, svg);
+            fillPDFDoc(doc, svgName, svg);
             doc.end();
         }
 
-        stream.on('finish', function() {
-            var url = stream.toBlobURL('application/pdf');
-            triggerDownload(url, svg_name + ".pdf");
+        stream.on("finish", function() {
+            var url = stream.toBlobURL("application/pdf");
+            triggerDownload(url, svgName + ".pdf");
         });
     }
 
     exports.version = version;
-    exports.downloadSvg = download_svg;
-    exports.downloadPng = download_png;
-    exports.downloadJpeg = download_jpeg;
-    exports.downloadPdf = download_pdf;
-    Object.defineProperty(exports, '__esModule', { value: true });
+    exports.downloadSvg = downloadSvg;
+    exports.downloadPng = downloadPng;
+    exports.downloadJpeg = downloadJpeg;
+    exports.downloadPdf = downloadPdf;
+    Object.defineProperty(exports, "__esModule", { value: true });
 })
 ));

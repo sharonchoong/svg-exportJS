@@ -1,6 +1,6 @@
 # svg-exportJS
 
-An easy-to-use client-side Javascript library to export svg charts from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. This library automatically handles external CSS in SVG elements, custom embedded fonts, transparent backgrounds turning black in JPEG, and other quirks of exporting SVG from the DOM. Written in pure javascript. Originally created to export D3.js charts.
+An easy-to-use client-side Javascript library to export svg charts from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. This library automatically handles external CSS in SVG elements, custom embedded fonts, transparent backgrounds turning black in JPEG, and other quirks of exporting SVG from the DOM. Written in plain vanilla javascript to be as lightweight as possible. Originally created to export D3.js charts.
 Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
 ## Getting Started
