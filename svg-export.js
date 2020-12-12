@@ -18,7 +18,6 @@
     var _options = {};
 
     function setPdfOptions(options) {
-        console.log(options)
         if (options && options.pdfOptions)
         {
             Object.keys(_options.pdfOptions).forEach(function(opt) {
