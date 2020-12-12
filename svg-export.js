@@ -41,8 +41,8 @@
         delete _options.pdfOptions.pageLayout.margin; 
         if (!(options && _options.pdfOptions.pageLayout.size)) {
             _options.pdfOptions.pageLayout.size = [
-                _options.width + _options.pdfOptions.pageLayout.margins.left + _options.pdfOptions.pageLayout.margins.right, 
-                _options.height + _options.pdfOptions.pageLayout.margins.top + _options.pdfOptions.pageLayout.margins.bottom +
+                Math.max(300, _options.width) + _options.pdfOptions.pageLayout.margins.left + _options.pdfOptions.pageLayout.margins.right, 
+                Math.max(300, _options.height) + _options.pdfOptions.pageLayout.margins.top + _options.pdfOptions.pageLayout.margins.bottom +
                     (_options.pdfOptions.addTitleToPage ? _options.pdfOptions.pdfTitleFontSize * 2 + 10: 0) + 
                     (_options.pdfOptions.chartCaption !== "" ? _options.pdfOptions.pdfCaptionFontSize * 4 + 10: 0)
             ];
@@ -52,6 +52,8 @@
     function setOptions(svgSelector, options) {
         //initialize options
         _options = {
+            originalWidth: 100,
+            originalHeight: 100,
             width: 100,
             height: 100, 
             scale: 1,
@@ -68,18 +70,28 @@
             }
         };
 
+        //original size
+        _options.originalHeight = document.querySelector(svgSelector).style.getPropertyValue("height").indexOf("%") !== -1 
+            || document.querySelector(svgSelector).getAttribute("height").indexOf("%") !== -1 
+            ? document.querySelector(svgSelector).getBBox().height * _options.scale
+            : document.querySelector(svgSelector).getBoundingClientRect().height * _options.scale;
+        _options.originalWidth = document.querySelector(svgSelector).style.getPropertyValue("width").indexOf("%") !== -1 
+            || document.querySelector(svgSelector).getAttribute("width").indexOf("%") !== -1
+            ? document.querySelector(svgSelector).getBBox().width * _options.scale
+            : document.querySelector(svgSelector).getBoundingClientRect().width * _options.scale;
+
         //custom options
         if (options && options.scale && typeof options.scale === "number") {
             _options.scale = options.scale;
         }
         if (!options || !options.height) {
-            _options.height = document.querySelector(svgSelector).getBoundingClientRect().height * _options.scale;
+            _options.height = _options.originalHeight * _options.scale;
         }
         else if (typeof options.height === "number") {
             _options.height = options.height * _options.scale;
         }
         if (!options || !options.width) {
-            _options.width = document.querySelector(svgSelector).getBoundingClientRect().width * _options.scale;
+            _options.width = _options.originalWidth * _options.scale;
         }
         else if (typeof options.width === "number") {
             _options.width = options.width * _options.scale;
@@ -118,10 +130,12 @@
             useCSSfromComputedStyles(document.querySelector(svgSelector), svg);
         }
 
+        svg.style.width = null;
+        svg.style.height = null;
         svg.setAttribute("width", _options.width);
         svg.setAttribute("height", _options.height);
         svg.setAttribute("preserveAspectRatio", "none");
-        svg.setAttribute("viewBox", "0 0 " + (document.querySelector(svgSelector).getBoundingClientRect().width) + " " + (document.querySelector(svgSelector).getBoundingClientRect().height));
+        svg.setAttribute("viewBox", "0 0 " + (_options.originalWidth) + " " + (_options.originalHeight));
 
         //get svg string
         if (asString)
