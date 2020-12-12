@@ -73,13 +73,13 @@
             _options.scale = options.scale;
         }
         if (!options || !options.height) {
-            _options.height = document.querySelector(svgSelector).getBBox().height * _options.scale;
+            _options.height = document.querySelector(svgSelector).getBoundingClientRect().height * _options.scale;
         }
         else if (typeof options.height === "number") {
             _options.height = options.height * _options.scale;
         }
         if (!options || !options.width) {
-            _options.width = document.querySelector(svgSelector).getBBox().width * _options.scale;
+            _options.width = document.querySelector(svgSelector).getBoundingClientRect().width * _options.scale;
         }
         else if (typeof options.width === "number") {
             _options.width = options.width * _options.scale;
@@ -121,7 +121,7 @@
         svg.setAttribute("width", _options.width);
         svg.setAttribute("height", _options.height);
         svg.setAttribute("preserveAspectRatio", "none");
-        svg.setAttribute("viewBox", "0 0 " + (document.querySelector(svgSelector).getBBox().width) + " " + (document.querySelector(svgSelector).getBBox().height));
+        svg.setAttribute("viewBox", "0 0 " + (document.querySelector(svgSelector).getBoundingClientRect().width) + " " + (document.querySelector(svgSelector).getBoundingClientRect().height));
 
         //get svg string
         if (asString)
