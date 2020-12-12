@@ -17,6 +17,39 @@
     var version = "1.0.0";
     var _options = {};
 
+    function setPdfOptions(options) {
+        console.log(options)
+        if (options && options.pdfOptions)
+        {
+            Object.keys(_options.pdfOptions).forEach(function(opt) {
+                if (options.pdfOptions.hasOwnProperty(opt) && typeof options.pdfOptions[opt] === typeof _options.pdfOptions[opt]) {
+                    if (options.pdfOptions[opt] === "") { return; }
+                    _options.pdfOptions[opt] = options.pdfOptions[opt];
+                }
+            });
+            
+            if (!_options.pdfOptions.pageLayout.margin) {
+                _options.pdfOptions.pageLayout.margin = 50;
+            }
+            if (!_options.pdfOptions.pageLayout.margins) {
+                _options.pdfOptions.pageLayout.margins = {};
+            }
+        }
+        _options.pdfOptions.pageLayout.margins.top = _options.pdfOptions.pageLayout.margins.top || _options.pdfOptions.pageLayout.margin;
+        _options.pdfOptions.pageLayout.margins.bottom = _options.pdfOptions.pageLayout.margins.bottom || _options.pdfOptions.pageLayout.margin;
+        _options.pdfOptions.pageLayout.margins.left = _options.pdfOptions.pageLayout.margins.left || _options.pdfOptions.pageLayout.margin;
+        _options.pdfOptions.pageLayout.margins.right = _options.pdfOptions.pageLayout.margins.top || _options.pdfOptions.pageLayout.margin;
+        delete _options.pdfOptions.pageLayout.margin; 
+        if (!(options && _options.pdfOptions.pageLayout.size)) {
+            _options.pdfOptions.pageLayout.size = [
+                _options.width + _options.pdfOptions.pageLayout.margins.left + _options.pdfOptions.pageLayout.margins.right, 
+                _options.height + _options.pdfOptions.pageLayout.margins.top + _options.pdfOptions.pageLayout.margins.bottom +
+                    (_options.pdfOptions.addTitleToPage ? _options.pdfOptions.pdfTitleFontSize * 2 + 10: 0) + 
+                    (_options.pdfOptions.chartCaption !== "" ? _options.pdfOptions.pdfCaptionFontSize * 4 + 10: 0)
+            ];
+        }
+    }
+
     function setOptions(svgSelector, options) {
         //initialize options
         _options = {
@@ -24,18 +57,21 @@
             height: 100, 
             scale: 1,
             useCSS: true,
-            PDFOptions: {
+            pdfOptions: {
                 customFonts: [],
                 pageLayout: { margin: 50, margins: {} },
                 addTitleToPage: true,
                 chartCaption: "",
-                PDFtextFontFamily: "Helvetica",
-                PDFTitleFontSize: 20,
-                PDFCaptionFontSize: 14
+                pdfTextFontFamily: "Helvetica",
+                pdfTitleFontSize: 20,
+                pdfCaptionFontSize: 14
             }
         };
 
         //custom options
+        if (options && options.scale && typeof options.scale === "number") {
+            _options.scale = options.scale;
+        }
         if (!options || !options.height) {
             _options.height = document.querySelector(svgSelector).getBBox().height * _options.scale;
         }
@@ -48,47 +84,18 @@
         else if (typeof options.width === "number") {
             _options.width = options.width * _options.scale;
         } 
-        if (options && options.scale && typeof options.scale === "number") {
-            _options.scale = options.scale;
-        }
-        if (options && options.useCSS && typeof getComputedStyle !== "function"){
-            _options.useCSS = false;
-            alert("Warning svg-export: this browser is not able to get computed styles");
-        } else if (options && options.useCSS === false) {
+        if (options && options.useCSS === false) {
             _options.useCSS = false;
         }
 
-        ["customFonts", "pageLayout", "addTitleToPage", "chartCaption", "PDFtextFontFamily", "PDFTitleFontSize", "PDFCaptionFontSize"].forEach(function(opt) {
-            if (options && options.PDFOptions && options.PDFOptions[opt] && typeof options.PDFOptions[opt] === typeof _options.PDFOptions[opt]) {
-                if (options.PDFOptions[opt] === "") { return; }
-                _options.PDFOptions[opt] = options.PDFOptions[opt];
-            }
-            if (opt === "pageLayout") {
-                if (!_options.PDFOptions.pageLayout.margin) {
-                    _options.PDFOptions.pageLayout.margin = 50;
-                }
-                if (!_options.PDFOptions.pageLayout.margins) {
-                    _options.PDFOptions.pageLayout.margins = {};
-                }
-            }
-        });
-
-        _options.PDFOptions.pageLayout.margins.top = _options.PDFOptions.pageLayout.margins.top || _options.PDFOptions.pageLayout.margin;
-        _options.PDFOptions.pageLayout.margins.bottom = _options.PDFOptions.pageLayout.margins.bottom || _options.PDFOptions.pageLayout.margin;
-        _options.PDFOptions.pageLayout.margins.left = _options.PDFOptions.pageLayout.margins.left || _options.PDFOptions.pageLayout.margin;
-        _options.PDFOptions.pageLayout.margins.right = _options.PDFOptions.pageLayout.margins.top || _options.PDFOptions.pageLayout.margin;
-        delete _options.PDFOptions.pageLayout.margin; 
-        if (!(options && _options.PDFOptions.pageLayout.size)) {
-            _options.PDFOptions.pageLayout.size = [
-                _options.width + _options.PDFOptions.pageLayout.margins.left + _options.PDFOptions.pageLayout.margins.right, 
-                _options.height + _options.PDFOptions.pageLayout.margins.top + _options.PDFOptions.pageLayout.margins.bottom +
-                    (_options.PDFOptions.addTitleToPage ? _options.PDFOptions.PDFTitleFontSize * 2 + 10: 0) + 
-                    (_options.PDFOptions.chartCaption !== "" ? _options.PDFOptions.PDFCaptionFontSize * 4 + 10: 0)
-            ];
-        }
+        setPdfOptions(options);
     }
 
     function useCSSfromComputedStyles(element, elementClone) {
+        if (typeof getComputedStyle !== "function"){
+            alert("Warning svg-export: this browser is not able to get computed styles");
+            return;
+        } 
         element.children.forEach(function(child, index){
             useCSSfromComputedStyles(child, elementClone.children[parseInt(index)]);
         });
@@ -96,7 +103,7 @@
         var compStyles = window.getComputedStyle(element);
         compStyles.forEach(function (compStyle){
             if (["width", "height", "inline-size", "block-size"].indexOf(compStyle) === -1 ) {
-                elementClone.style[compStyle] = compStyles.getPropertyValue(compStyle);
+                elementClone.style.setProperty(compStyle, compStyles.getPropertyValue(compStyle));
             }
         });
     }
@@ -213,7 +220,10 @@
         //get canvas and svg element.
         var canvas = document.createElement("canvas");
         if (!(options && (options.width || options.height))) {
-            _options.scale = 10;
+            if (!options) {
+                options = {};
+            }
+            options.scale = 10;
         }
         setOptions(svgSelector, options);
         var svgString = getSvg(svgSelector);
@@ -239,34 +249,34 @@
 
     function fillPDFDoc(doc, svgName, svg) {
         // -title
-        if (_options.PDFOptions.addTitleToPage){
-            doc.font(_options.PDFOptions.PDFtextFontFamily)
-                .fontSize(_options.PDFOptions.PDFTitleFontSize)
+        if (_options.pdfOptions.addTitleToPage){
+            doc.font(_options.pdfOptions.pdfTextFontFamily)
+                .fontSize(_options.pdfOptions.pdfTitleFontSize)
                 .text(svgName,
                 { 
-                    width: _options.PDFOptions.pageLayout.size[0] - _options.PDFOptions.pageLayout.margins.left - _options.PDFOptions.pageLayout.margins.right
+                    width: _options.pdfOptions.pageLayout.size[0] - _options.pdfOptions.pageLayout.margins.left - _options.pdfOptions.pageLayout.margins.right
                 });              
         }
         // -svg
-        SVGtoPDF(doc, svg, _options.PDFOptions.pageLayout.margins.left, doc.y + 10, 
+        SVGtoPDF(doc, svg, _options.pdfOptions.pageLayout.margins.left, doc.y + 10, 
             { width: _options.width, height: _options.height, preserveAspectRatio: "none", useCSS: _options.useCSS });
 
         // -caption
-        if (_options.PDFOptions.chartCaption !== ""){
-            doc.font(_options.PDFOptions.PDFtextFontFamily)
-                .fontSize(_options.PDFOptions.PDFCaptionFontSize)
-                .text(_options.PDFOptions.chartCaption, _options.PDFOptions.pageLayout.margins.left, 
-                    _options.PDFOptions.pageLayout.size[1] - _options.PDFOptions.pageLayout.margins.bottom - _options.PDFOptions.PDFCaptionFontSize * 4,
+        if (_options.pdfOptions.chartCaption !== ""){
+            doc.font(_options.pdfOptions.pdfTextFontFamily)
+                .fontSize(_options.pdfOptions.pdfCaptionFontSize)
+                .text(_options.pdfOptions.chartCaption, _options.pdfOptions.pageLayout.margins.left, 
+                    _options.pdfOptions.pageLayout.size[1] - _options.pdfOptions.pageLayout.margins.bottom - _options.pdfOptions.pdfCaptionFontSize * 4,
                 { 
-                    width: _options.PDFOptions.pageLayout.size[0] - _options.PDFOptions.pageLayout.margins.left - _options.PDFOptions.pageLayout.margins.right
+                    width: _options.pdfOptions.pageLayout.size[0] - _options.pdfOptions.pageLayout.margins.left - _options.pdfOptions.pageLayout.margins.right
                 });              
         }
     }
     function downloadPdf(svgSelector, svgName, options) {
         //check dependency and values
-        if (typeof PDFDocument !== "function" || typeof SVGtoPDF !== "function")
+        if (typeof PDFDocument !== "function" || typeof SVGtoPDF !== "function" || typeof blobStream !== "function")
         {
-            alert("Error svg-export: PDF export requires PDFKit.js and SVG-to-PDFKit");
+            alert("Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit");
             return;
         }
         if (svgName == null) {
@@ -278,21 +288,26 @@
         var svg = getSvg(svgSelector, false);
 
         //create PDF doc
-        var doc = new PDFDocument(_options.PDFOptions.pageLayout);
+        var doc = new PDFDocument(_options.pdfOptions.pageLayout);
         var stream = doc.pipe(blobStream());
-
+        
         // -custom fonts
-        if (_options.PDFOptions.customFonts.length > 0){
-            var promises = getCustomFonts(_options.PDFOptions.customFonts.map(function(d) { return d.url; }));
+        if (_options.pdfOptions.customFonts.length > 0){
+            var promises = getCustomFonts(_options.pdfOptions.customFonts.map(function(d) { return d.url; }));
             Promise.all(promises).then(function(fonts) {
                 fonts.forEach(function(font, index) {
+                    var thisPdfOptions = _options.pdfOptions.customFonts[parseInt(index)];
                     //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
-                    var fontStyledElements = svg.querySelectorAll("[style*=\"" +_options.PDFOptions.customFonts[parseInt(index)].fontName + "\"]");
+                    var fontStyledElements = svg.querySelectorAll("[style*=\"" +thisPdfOptions.fontName + "\"]");
                     fontStyledElements.forEach(function(element) {
-                        element.style.fontFamily = _options.PDFOptions.customFonts[parseInt(index)].fontName;
+                        element.style.fontFamily = thisPdfOptions.fontName;
                     });
-
-                    doc.registerFont(_options.PDFOptions.customFonts[parseInt(index)].fontName, font, _options.PDFOptions.customFonts[parseInt(index)].styleName);
+                    if ((thisPdfOptions.url.indexOf(".ttc") !== -1 || thisPdfOptions.url.indexOf(".dfont") !== -1) && thisPdfOptions.styleName) {
+                        doc.registerFont(thisPdfOptions.fontName, font, thisPdfOptions.styleName);
+                    }
+                    else {
+                        doc.registerFont(thisPdfOptions.fontName, font);
+                    }
                 });
                 fillPDFDoc(doc, svgName, svg);
                 doc.end();

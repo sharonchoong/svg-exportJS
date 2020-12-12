@@ -2,8 +2,8 @@
 <html>
     <head>
         <style>
-            circle {
-                fill: red;
+            text {
+                fill: blue;
             }
             @font-face {
                 font-family: 'Segan';
@@ -54,9 +54,9 @@
         };
         document.querySelector("#btn_export_pdf").onclick = function(){
             svgExport.downloadPdf("#mysvg", "Circles and rectangles chart", { 
-                PDFOptions: {
+                pdfOptions: {
                     chartCaption: "Hi there.  This is a test chart caption. ", 
-                    PDFtextFontFamily: "Segan",
+                    pdfTextFontFamily: "Segan",
                     customFonts: [ { url: "fonts/Segan/Segan-Light.ttf", fontName: "Segan" } ]
                 } 
             });
