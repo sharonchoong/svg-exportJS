@@ -56,6 +56,7 @@
             height: 100, 
             scale: 1,
             useCSS: true,
+            transparentBackgroundReplace: "white",
             pdfOptions: {
                 customFonts: [],
                 pageLayout: { margin: 50, margins: {} },
@@ -85,6 +86,9 @@
         } 
         if (options && options.useCSS === false) {
             _options.useCSS = false;
+        }
+        if (options && options.transparentBackgroundReplace) {
+            _options.transparentBackgroundReplace = options.transparentBackgroundReplace;
         }
 
         setPdfOptions(options);
@@ -123,6 +127,7 @@
         if (asString)
         {
             var serializer = new XMLSerializer();
+            //setting currentColor to black matters if computed styles are not used
             var svgString = serializer.serializeToString(svg).replace(/currentColor/g, "black");
 
             //add namespaces
@@ -230,7 +235,8 @@
         if (imageType === "jpeg")
         {
             //change transparent background to white
-            svgString = svgString.replace(">", "><rect x=\"0\" y=\"0\" width=\"" + _options.width + "\" height=\"" + _options.height + "\" fill=\"white\"/>");
+            svgString = svgString.replace(">", "><rect x=\"0\" y=\"0\" width=\"" + _options.width + "\" height=\"" + _options.height 
+                + "\" fill=\"" + _options.transparentBackgroundReplace + "\"/>");
         }
 
         var ctx = canvas.getContext("2d");
