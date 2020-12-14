@@ -55,16 +55,16 @@ In Javascript:
 
 ```javascript
 svgExport.downloadSvg(
-  svgElement, // SVG DOM Element object to be exported. Alternatively, a string of the serialized SVG can be passed
+  document.getElementById("mysvg"), // SVG DOM Element object to be exported. Alternatively, a string of the serialized SVG can be passed
   "chart title name", // chart title: file name of exported image
   { width: 200, height: 200 } // options (optional, please see below for a list of option properties)
 );
-svgExport.downloadPng(svgString, "chart title name", {
+svgExport.downloadPng("<svg id="mysvg"></svg>", "chart title name", {
   width: 200,
   height: 200,
 });
-svgExport.downloadJpeg(svgElement, "chart title name");
-svgExport.downloadPdf(svgElement, "chart title name");
+svgExport.downloadJpeg(svgElementObject, "chart title name");
+svgExport.downloadPdf(svgString, "chart title name");
 ```
 
 See `index.html` for an example of how to use.
