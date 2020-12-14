@@ -27,7 +27,7 @@
         } 
         
         if (!svg.nodeType || svg.nodeType !== 1) {
-            console.log("Error svg-export: The input svg was not recognized");
+            //console.log("Error svg-export: The input svg was not recognized");
             return null;
         } 
 
@@ -133,7 +133,7 @@
 
     function useCSSfromComputedStyles(element, elementClone) {
         if (typeof getComputedStyle !== "function"){
-            console.log("Warning svg-export: this browser is not able to get computed styles");
+            //console.log("Warning svg-export: this browser is not able to get computed styles");
             return;
         } 
         element.childNodes.forEach(function(child, index){
@@ -152,7 +152,7 @@
 
     function setupSvg(svgElement, originalSvg, asString)
     {
-        if (asString === undefined) { asString = true; }
+        if (typeof asString === "undefined") { asString = true; }
         if (_options.useCSS && typeof originalSvg === "object") {
             useCSSfromComputedStyles(originalSvg, svgElement);
             svgElement.style.display = null;
@@ -258,7 +258,7 @@
         //check dependency and values
         if (typeof canvg !== "object")
         {
-            console.log("Error svg-export: PNG/JPEG export requires Canvg.js");
+            //console.log("Error svg-export: PNG/JPEG export requires Canvg.js");
             return;
         }
         imageType = imageType.toLowerCase().replace("jpg", "jpeg");
@@ -281,8 +281,7 @@
         }
         setOptions(svgElement, options);
         var svgString = setupSvg(svgElement, svg);
-        console.log(svgElement)
-        console.log(_options.width)
+        
         if (imageType === "jpeg")
         {
             //change transparent background to white
@@ -332,7 +331,7 @@
         //check dependency and values
         if (typeof PDFDocument !== "function" || typeof SVGtoPDF !== "function" || typeof blobStream !== "function")
         {
-            console.log("Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit");
+            //console.log("Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit");
             return;
         }
         var svgElement = getSvgElement(svg);
