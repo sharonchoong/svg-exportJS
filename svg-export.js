@@ -17,6 +17,31 @@
     var version = "1.0.0";
     var _options = {};
 
+    function getSvgElement(svg) {
+        var div = document.createElement("div");
+        div.className = "tempdiv-svg-exportJS";
+
+        if (typeof svg === "string") {
+            div.innerHTML = svg.trim();
+            svg = div.firstChild;
+        } 
+        
+        if (!svg.nodeType || svg.nodeType !== 1) {
+            console.log("Error svg-export: The input svg was not recognized");
+            return null;
+        } 
+
+        var svgClone = svg.cloneNode(true);
+        svgClone.style.display = null;
+        div.appendChild(svgClone);
+        div.style.visibility = "hidden";
+        div.style.display = "table";
+        div.style.position = "absolute";
+        document.body.appendChild(div);
+
+        return svgClone;
+    }
+
     function setPdfOptions(options) {
         if (options && options.pdfOptions)
         {
@@ -48,8 +73,8 @@
             ];
         }
     }
-
-    function setOptions(svgSelector, options) {
+    
+    function setOptions(svgElement, options) {
         //initialize options
         _options = {
             originalWidth: 100,
@@ -71,14 +96,14 @@
         };
 
         //original size
-        _options.originalHeight = document.querySelector(svgSelector).style.getPropertyValue("height").indexOf("%") !== -1 
-            || document.querySelector(svgSelector).getAttribute("height").indexOf("%") !== -1 
-            ? document.querySelector(svgSelector).getBBox().height * _options.scale
-            : document.querySelector(svgSelector).getBoundingClientRect().height * _options.scale;
-        _options.originalWidth = document.querySelector(svgSelector).style.getPropertyValue("width").indexOf("%") !== -1 
-            || document.querySelector(svgSelector).getAttribute("width").indexOf("%") !== -1
-            ? document.querySelector(svgSelector).getBBox().width * _options.scale
-            : document.querySelector(svgSelector).getBoundingClientRect().width * _options.scale;
+        _options.originalHeight = svgElement.style.getPropertyValue("height").indexOf("%") !== -1 
+            || (svgElement.getAttribute("height") && svgElement.getAttribute("height").indexOf("%") !== -1 )
+            ? svgElement.getBBox().height * _options.scale
+            : svgElement.getBoundingClientRect().height * _options.scale;
+        _options.originalWidth = svgElement.style.getPropertyValue("width").indexOf("%") !== -1 
+            || (svgElement.getAttribute("width") && svgElement.getAttribute("width").indexOf("%") !== -1 )
+            ? svgElement.getBBox().width * _options.scale
+            : svgElement.getBoundingClientRect().width * _options.scale;
 
         //custom options
         if (options && options.scale && typeof options.scale === "number") {
@@ -108,11 +133,13 @@
 
     function useCSSfromComputedStyles(element, elementClone) {
         if (typeof getComputedStyle !== "function"){
-            alert("Warning svg-export: this browser is not able to get computed styles");
+            console.log("Warning svg-export: this browser is not able to get computed styles");
             return;
         } 
-        element.children.forEach(function(child, index){
-            useCSSfromComputedStyles(child, elementClone.children[parseInt(index)]);
+        element.childNodes.forEach(function(child, index){
+            if (child.nodeType === 1/*Node.ELEMENT_NODE*/) {
+                useCSSfromComputedStyles(child, elementClone.childNodes[parseInt(index)]);
+            }
         });
         
         var compStyles = window.getComputedStyle(element);
@@ -123,26 +150,32 @@
         });
     }
 
-    function getSvg(svgSelector, asString = true)
+    function setupSvg(svgElement, originalSvg, asString)
     {
-        var svg = document.querySelector(svgSelector).cloneNode(true);
-        if (_options.useCSS) {
-            useCSSfromComputedStyles(document.querySelector(svgSelector), svg);
+        if (asString === undefined) { asString = true; }
+        if (_options.useCSS && typeof originalSvg === "object") {
+            useCSSfromComputedStyles(originalSvg, svgElement);
+            svgElement.style.display = null;
         }
 
-        svg.style.width = null;
-        svg.style.height = null;
-        svg.setAttribute("width", _options.width);
-        svg.setAttribute("height", _options.height);
-        svg.setAttribute("preserveAspectRatio", "none");
-        svg.setAttribute("viewBox", "0 0 " + (_options.originalWidth) + " " + (_options.originalHeight));
+        svgElement.style.width = null;
+        svgElement.style.height = null;
+        svgElement.setAttribute("width", _options.width);
+        svgElement.setAttribute("height", _options.height);
+        svgElement.setAttribute("preserveAspectRatio", "none");
+        svgElement.setAttribute("viewBox", "0 0 " + (_options.originalWidth) + " " + (_options.originalHeight));
+        
+        var elements = document.getElementsByClassName("tempdiv-svg-exportJS");
+        while(elements.length > 0){
+            elements[0].parentNode.removeChild(elements[0]);
+        }
 
         //get svg string
         if (asString)
         {
             var serializer = new XMLSerializer();
             //setting currentColor to black matters if computed styles are not used
-            var svgString = serializer.serializeToString(svg).replace(/currentColor/g, "black");
+            var svgString = serializer.serializeToString(svgElement).replace(/currentColor/g, "black");
 
             //add namespaces
             if (!svgString.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
@@ -154,7 +187,7 @@
     
             return svgString;
         }
-        return svg;
+        return svgElement;
     }
 
     function getCustomFonts(fontUrls) {
@@ -201,14 +234,16 @@
         }
     }
 
-    function downloadSvg(svgSelector, svgName, options) {
+    function downloadSvg(svg, svgName, options) {
+        var svgElement = getSvgElement(svg);
+        if (!svgElement) { return; }
         if (svgName == null) {
             svgName = "chart";
         }
 
         //get svg element
-        setOptions(svgSelector, options);
-        var svgString = getSvg(svgSelector);
+        setOptions(svgElement, options);
+        var svgString = setupSvg(svgElement, svg);
 
         //add xml declaration
         svgString = "<?xml version=\"1.0\" standalone=\"no\"?>\r\n" + svgString;
@@ -219,18 +254,19 @@
         triggerDownload(url, svgName + ".svg");
     }
 
-    function downloadRaster(svgSelector, svgName, options, imageType) {
+    function downloadRaster(svg, svgName, options, imageType) {
         //check dependency and values
         if (typeof canvg !== "object")
         {
-            alert("Error svg-export: PNG/JPEG export requires Canvg.js");
+            console.log("Error svg-export: PNG/JPEG export requires Canvg.js");
             return;
         }
         imageType = imageType.toLowerCase().replace("jpg", "jpeg");
         if (imageType !== "png" && imageType !== "jpeg") {
             imageType = "png";
         }
-
+        var svgElement = getSvgElement(svg);
+        if (!svgElement) { return; }
         if (svgName == null) {
             svgName = "chart";
         }
@@ -243,9 +279,10 @@
             }
             options.scale = 10;
         }
-        setOptions(svgSelector, options);
-        var svgString = getSvg(svgSelector);
-
+        setOptions(svgElement, options);
+        var svgString = setupSvg(svgElement, svg);
+        console.log(svgElement)
+        console.log(_options.width)
         if (imageType === "jpeg")
         {
             //change transparent background to white
@@ -259,11 +296,11 @@
         var image = canvas.toDataURL("image/" + imageType);
         triggerDownload(image, svgName + "." + imageType, canvas);
     }
-    function downloadPng(svgSelector, svgName, options) {
-        downloadRaster(svgSelector, svgName, options, "png");
+    function downloadPng(svg, svgName, options) {
+        downloadRaster(svg, svgName, options, "png");
     }
-    function downloadJpeg(svgSelector, svgName, options) {
-        downloadRaster(svgSelector, svgName, options, "jpeg");
+    function downloadJpeg(svg, svgName, options) {
+        downloadRaster(svg, svgName, options, "jpeg");
     }
 
     function fillPDFDoc(doc, svgName, svg) {
@@ -291,20 +328,22 @@
                 });              
         }
     }
-    function downloadPdf(svgSelector, svgName, options) {
+    function downloadPdf(svg, svgName, options) {
         //check dependency and values
         if (typeof PDFDocument !== "function" || typeof SVGtoPDF !== "function" || typeof blobStream !== "function")
         {
-            alert("Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit");
+            console.log("Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit");
             return;
         }
+        var svgElement = getSvgElement(svg);
+        if (!svgElement) { return; }
         if (svgName == null) {
             svgName = "chart";
         }
 
         //get svg element
-        setOptions(svgSelector, options);
-        var svg = getSvg(svgSelector, false);
+        setOptions(svgElement, options);
+        var svgCloned = setupSvg(svgElement, svg, false);
 
         //create PDF doc
         var doc = new PDFDocument(_options.pdfOptions.pageLayout);
@@ -317,7 +356,7 @@
                 fonts.forEach(function(font, index) {
                     var thisPdfOptions = _options.pdfOptions.customFonts[parseInt(index)];
                     //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
-                    var fontStyledElements = svg.querySelectorAll("[style*=\"" +thisPdfOptions.fontName + "\"]");
+                    var fontStyledElements = svgCloned.querySelectorAll("[style*=\"" +thisPdfOptions.fontName + "\"]");
                     fontStyledElements.forEach(function(element) {
                         element.style.fontFamily = thisPdfOptions.fontName;
                     });
@@ -328,11 +367,11 @@
                         doc.registerFont(thisPdfOptions.fontName, font);
                     }
                 });
-                fillPDFDoc(doc, svgName, svg);
+                fillPDFDoc(doc, svgName, svgCloned);
                 doc.end();
             });
         } else {
-            fillPDFDoc(doc, svgName, svg);
+            fillPDFDoc(doc, svgName, svgCloned);
             doc.end();
         }
 

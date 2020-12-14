@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.11.0/js/pdfkit.standalone.js"></script>
+        <script src="https://github.com/devongovett/blob-stream/releases/download/v0.1.3/blob-stream.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.min.js"></script>
+        <script src="svg-export.js"></script>
         <style>
             text {
                 fill: blue;
@@ -10,11 +15,6 @@
                 src: url('fonts/Segan/Segan-Light.ttf') format('truetype');
             }
         </style>
-        <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.11.0/js/pdfkit.standalone.js"></script>
-        <script src="https://github.com/devongovett/blob-stream/releases/download/v0.1.3/blob-stream.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.min.js"></script>
-        <script src="svg-export.min.js"></script>
     </head>
     <body>
         <div>
@@ -41,21 +41,28 @@
             <button id="btn_export_svg">SVG</button>
             <button id="btn_export_jpeg">JPEG</button>
             <button id="btn_export_png">PNG (5000 x 5000 custom size)</button>
+            <button id="btn_export_png_string">PNG (svg string)</button>
             <button id="btn_export_pdf">PDF (with captions)</button>
         </div>
+        <p>Note: for the PNG (svg string) export, the red circle does not render as red because the serialized string does not contain the "color: red" style for "currentColor", which is actually found on the SVG's container</div>
     </body>
     <script>
         document.querySelector("#btn_export_svg").onclick = function(){
-            svgExport.downloadSvg("#mysvg", "Circles and rectangles chart");
+            svgExport.downloadSvg(document.querySelector("#mysvg"), "Circles and rectangles chart");
         };
         document.querySelector("#btn_export_jpeg").onclick = function(){
-            svgExport.downloadJpeg("#mysvg", "Circles and rectangles chart");
+            svgExport.downloadJpeg(document.querySelector("#mysvg"), "Circles and rectangles chart");
         };
         document.querySelector("#btn_export_png").onclick = function(){
-            svgExport.downloadPng("#mysvg", "Circles and rectangles chart", { width: 5000, height: 5000 });
+            svgExport.downloadPng(document.querySelector("#mysvg"), "Circles and rectangles chart", { width: 5000, height: 5000 });
+        };
+        document.querySelector("#btn_export_png_string").onclick = function(){
+            var svg_string = document.querySelector("#mysvg").outerHTML;
+            svg_string = svg_string.replace(">", ">" + document.getElementsByTagName("style")[0].outerHTML);
+            svgExport.downloadPng(svg_string, "Circles and rectangles chart");
         };
         document.querySelector("#btn_export_pdf").onclick = function(){
-            svgExport.downloadPdf("#mysvg", "Circles and rectangles chart", { 
+            svgExport.downloadPdf(document.querySelector("#mysvg"), "Circles and rectangles chart", { 
                 pdfOptions: {
                     chartCaption: "Hi there.  This is a test chart caption. ", 
                     pdfTextFontFamily: "Segan",

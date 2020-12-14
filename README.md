@@ -1,14 +1,16 @@
 # svg-exportJS [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a2677830f9d2432d8061a8151e03fd23)](https://app.codacy.com/gh/sharonchoong/svg-exportJS?utm_source=github.com&utm_medium=referral&utm_content=sharonchoong/svg-exportJS&utm_campaign=Badge_Grade)
 
-An easy-to-use client-side Javascript library to export svg graphics from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Written in plain vanilla javascript. Originally created to export D3.js charts.
+An easy-to-use client-side Javascript library to export SVG graphics from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Written in plain vanilla javascript. Originally created to export D3.js charts.
 
-This library handles
+This library features:
 
-- Custom size for exported image or graphic
+- Exporting SVG DOM Element objects or serialized SVG string to SVG file, PNG, JPEG, PDF
+- Setting custom size for exported image or graphic
 - High resolution raster image, using `scale`
-- External CSS styles in SVG
-- Custom embedded fonts
-- Transparent background for JPEG format conversion
+- Including external CSS styles in SVG
+- Exporting text in custom embedded fonts
+- Handling transparent background for JPEG format conversion
+- Exporting SVGs that are hidden on the DOM (`display: none`, SVGs in hidden modals, dropdowns or tabs, etc.) 
 
 Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
@@ -53,26 +55,26 @@ In Javascript:
 
 ```javascript
 svgExport.downloadSvg(
-  "#mysvg", // css selector of svg element to be exported
+  svgElement, // SVG DOM Element object to be exported. Alternatively, a string of the serialized SVG can be passed
   "chart title name", // chart title: file name of exported image
-  { width: 200, height: 200 } // options (optional)
+  { width: 200, height: 200 } // options (optional, please see below for a list of option properties)
 );
-svgExport.downloadPng("#mysvg", "chart title name", {
+svgExport.downloadPng(svgString, "chart title name", {
   width: 200,
   height: 200,
 });
-svgExport.downloadJpeg("#mysvg", "chart title name");
-svgExport.downloadPdf("#mysvg", "chart title name");
+svgExport.downloadJpeg(svgElement, "chart title name");
+svgExport.downloadPdf(svgElement, "chart title name");
 ```
 
 See `index.html` for an example of how to use.
 
 ## Options
 
-- **width** (number) : _the width of the resulting image exported, in pixels. Default is the svg's width on the DOM_
-- **height** (number) : _the height of the resulting image exported, in pixels. Default is the svg's height on the DOM_
-- **scale** (number) : _a multiple by which the svg can be increased or decreased in size. For PNG and JPEG exports, if width, height and scale are not specified, scale is set to `10` for a 10x enlargement to ensure that a higher resolution image is produced. Otherwise, the default scale is `1`_
-- **useCSS** (bool): _if SVG styles are specified in stylesheet rather than inline, setting `true` will add references to such styles from the styles computed by the browser. If useCSS is `false`, `currentColor` will be changed to `black`. Default is `true`_
+- **width** (number) : _the width of the resulting image exported, in pixels. Default is the SVG's width on the DOM_
+- **height** (number) : _the height of the resulting image exported, in pixels. Default is the SVG's height on the DOM_
+- **scale** (number) : _a multiple by which the SVG can be increased or decreased in size. For PNG and JPEG exports, if width, height and scale are not specified, scale is set to `10` for a 10x enlargement to ensure that a higher resolution image is produced. Otherwise, the default scale is `1`_
+- **useCSS** (bool): _if SVG styles are specified in stylesheet externally rather than inline, setting `true` will add references to such styles from the styles computed by the browser. If useCSS is `false`, `currentColor` will be changed to `black`. This setting only applies if the SVG is passed as a DOM Element object, not as a string. Default is `true`_
 - **transparentBackgroundReplace** (string): _the color to be used to replace a transparent background in JPEG format export. Default is `white`_
 - **pdfOptions**
   - **pageLayout** (object): _e.g. `{ margin: 50, layout: "landscape" }`. This is provided to PDFKit's `addPage`. When the options **width** and **height** are not specified, a minimum size of 300x300 is used for the PDF page size; otherwise the page size wraps around the SVG size. Please see the [PDFKit documentation](https://pdfkit.org/docs/getting_started.html#adding_pages) for more info_
@@ -98,8 +100,7 @@ Need to add SVG graphics to Office Word, Excel or Powerpoint presentations? [SVG
 ## Roadmap
 
 - [ ] Test external images within SVGs
-- [ ] Allow serialized SVG string or external SVG document as input
-- [ ] Set up package.json and publish to npm
+- [ ] Set up package.json and publish to npm (jsdom for Node?)
 
 ## Contributing
 
