@@ -59,7 +59,7 @@ svgExport.downloadSvg(
   "chart title name", // chart title: file name of exported image
   { width: 200, height: 200 } // options (optional, please see below for a list of option properties)
 );
-svgExport.downloadPng("<svg id="mysvg"></svg>", "chart title name", {
+svgExport.downloadPng("<svg id=\"mysvg\"></svg>", "chart title name", {
   width: 200,
   height: 200,
 });

@@ -22,7 +22,7 @@
         div.className = "tempdiv-svg-exportJS";
 
         if (typeof svg === "string") {
-            div.innerHTML = svg.trim();
+            div.insertAdjacentHTML('beforeend', svg.trim());
             svg = div.firstChild;
         } 
         
@@ -138,7 +138,7 @@
         } 
         element.childNodes.forEach(function(child, index){
             if (child.nodeType === 1/*Node.ELEMENT_NODE*/) {
-                useCSSfromComputedStyles(child, elementClone.childNodes[parseInt(index)]);
+                useCSSfromComputedStyles(child, elementClone.childNodes[parseInt(index, 10)]);
             }
         });
         
@@ -353,7 +353,7 @@
             var promises = getCustomFonts(_options.pdfOptions.customFonts.map(function(d) { return d.url; }));
             Promise.all(promises).then(function(fonts) {
                 fonts.forEach(function(font, index) {
-                    var thisPdfOptions = _options.pdfOptions.customFonts[parseInt(index)];
+                    var thisPdfOptions = _options.pdfOptions.customFonts[parseInt(index, 10)];
                     //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
                     var fontStyledElements = svgCloned.querySelectorAll("[style*=\"" +thisPdfOptions.fontName + "\"]");
                     fontStyledElements.forEach(function(element) {
