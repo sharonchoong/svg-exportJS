@@ -22,7 +22,7 @@
         div.className = "tempdiv-svg-exportJS";
 
         if (typeof svg === "string") {
-            div.insertAdjacentHTML('beforeend', svg.trim());
+            div.insertAdjacentHTML("beforeend", svg.trim());
             svg = div.firstChild;
         } 
         
@@ -143,11 +143,13 @@
         });
         
         var compStyles = window.getComputedStyle(element);
-        compStyles.forEach(function (compStyle){
-            if (["width", "height", "inline-size", "block-size"].indexOf(compStyle) === -1 ) {
-                elementClone.style.setProperty(compStyle, compStyles.getPropertyValue(compStyle));
-            }
-        });
+        if (compStyles.length > 0) {
+            Object.keys(compStyles).forEach(function (compStyle){
+                if (["width", "height", "inline-size", "block-size"].indexOf(compStyle) === -1 ) {
+                    elementClone.style.setProperty(compStyle, compStyles.getPropertyValue(compStyle));
+                }
+            });
+        }
     }
 
     function setupSvg(svgElement, originalSvg, asString)
