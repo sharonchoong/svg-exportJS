@@ -112,4 +112,4 @@ Licensed under MIT. See `LICENSE` for more information.
 
 ## Contact
 
-Sharon Choong - [https://sharonchoong.github.io/](https://sharonchoong.github.io/about.html)
+Sharon Choong - [https://sharonchoong.github.io/](https://sharonchoong.github.io)
