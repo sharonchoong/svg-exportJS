@@ -148,7 +148,7 @@
                 if (["width", "height", "inline-size", "block-size"].indexOf(compStyle) === -1 ) {
                     elementClone.style.setProperty(compStyle, compStyles.getPropertyValue(compStyle));
                 }
-            });
+            };
         }
     }
 
