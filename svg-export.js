@@ -144,7 +144,7 @@
         
         var compStyles = window.getComputedStyle(element);
         if (compStyles.length > 0) {
-            Object.keys(compStyles).forEach(function (compStyle){
+            for (const compStyle of compStyles){
                 if (["width", "height", "inline-size", "block-size"].indexOf(compStyle) === -1 ) {
                     elementClone.style.setProperty(compStyle, compStyles.getPropertyValue(compStyle));
                 }

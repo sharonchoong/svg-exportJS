@@ -18,7 +18,7 @@ Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
 ### Prerequisites
 
-- Any of the following browsers: Chrome 14.0+, Edge 18.0+, Firefox 20.0+, Safari 10.1+, Opera 15+
+- Any of the following browsers: Chrome 38.0+, Edge 18.0+, Firefox 20.0+, Safari 10.1+, Opera 25+
 - [Canvg](https://github.com/canvg/canvg) (if you need JPEG/PNG export)
   ```html
   <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
