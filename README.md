@@ -102,6 +102,9 @@ Need to add SVG graphics to Office Word, Excel or Powerpoint presentations? [SVG
 - [ ] Test external images within SVGs
 - [ ] Set up package.json and publish to npm (jsdom for Node?)
 
+## Not Supported
+Since `foreignObject` does not contain SVG, it is not supported.
+
 ## Contributing
 
 Contributions are very welcome! Feel free to flag issues or pull requests.
@@ -113,3 +116,5 @@ Licensed under MIT. See `LICENSE` for more information.
 ## Contact
 
 Sharon Choong - [https://sharonchoong.github.io/](https://sharonchoong.github.io)
+
+Send me your cheers with a cup of coffee! [Ko-Fi](https://ko-fi.com/sharonchoong)
