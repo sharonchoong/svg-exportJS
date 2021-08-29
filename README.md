@@ -23,12 +23,13 @@ Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
   ```html
   <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
   ```
-- [PDFKit](https://github.com/foliojs/pdfkit), [blob-stream](https://github.com/devongovett/blob-stream) and [SVG-to-PDFKit](https://github.com/alafr/SVG-to-PDFKit) (if you need PDF export)
+- [PDFKit](https://github.com/foliojs/pdfkit), [blob-stream](https://github.com/devongovett/blob-stream) and [SVG-to-PDFKit](https://github.com/alafr/SVG-to-PDFKit) (if you need PDF export). 
   ```html
   <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.11.0/js/pdfkit.min.js"></script>
   <script src="https://github.com/devongovett/blob-stream/releases/download/v0.1.3/blob-stream.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.min.js"></script>
   ```
+Please note that the CDNs above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above.
 
 ### Installation
 
