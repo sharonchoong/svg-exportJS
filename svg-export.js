@@ -1,6 +1,6 @@
 /*
  * svg-export.js - Javascript SVG parser and renderer on Canvas
- * version 1.0.0
+ * version 1.2.0
  * MIT Licensed
  * Sharon Choong (https://sharonchoong.github.io/about.html)
  * https://sharonchoong.github.io/svg-export
@@ -14,8 +14,14 @@
     (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.svgExport = global.svgExport || {}));
 } (this, (function (exports) {
     "use strict";
-    var version = "1.0.0";
+    var version = "1.2.0";
     var _options = {};
+
+    function warnError(str) {
+        if (typeof console !== undefined && typeof console.warn === 'function') {
+            console.warn(str);
+        }
+    };
 
     function getSvgElement(svg) {
         var div = document.createElement("div");
@@ -27,7 +33,7 @@
         } 
         
         if (!svg.nodeType || svg.nodeType !== 1) {
-            //console.log("Error svg-export: The input svg was not recognized");
+            warnError("Error svg-export: The input svg was not recognized");
             return null;
         } 
 
@@ -84,6 +90,7 @@
             scale: 1,
             useCSS: true,
             transparentBackgroundReplace: "white",
+            allowCrossOriginImages: false,
             pdfOptions: {
                 customFonts: [],
                 pageLayout: { margin: 50, margins: {} },
@@ -127,13 +134,15 @@
         if (options && options.transparentBackgroundReplace) {
             _options.transparentBackgroundReplace = options.transparentBackgroundReplace;
         }
-
+        if (options && options.allowCrossOriginImages) {
+            _options.allowCrossOriginImages = options.allowCrossOriginImages;
+        }
         setPdfOptions(options);
     }
 
     function useCSSfromComputedStyles(element, elementClone) {
         if (typeof getComputedStyle !== "function"){
-            //console.log("Warning svg-export: this browser is not able to get computed styles");
+            warnError("Warning svg-export: this browser is not able to get computed styles");
             return;
         } 
         element.childNodes.forEach(function(child, index){
@@ -166,7 +175,7 @@
         svgElement.setAttribute("height", _options.height);
         svgElement.setAttribute("preserveAspectRatio", "none");
         svgElement.setAttribute("viewBox", "0 0 " + (_options.originalWidth) + " " + (_options.originalHeight));
-        
+       
         var elements = document.getElementsByClassName("tempdiv-svg-exportJS");
         while(elements.length > 0){
             elements[0].parentNode.removeChild(elements[0]);
@@ -190,6 +199,27 @@
             return svgString;
         }
         return svgElement;
+    }
+
+    function convertImageURLtoDataURI(image) {
+        return new Promise(function(resolve, reject) {
+            var newImage = new Image();
+                        
+            newImage.onload = function () {
+                var canvas = document.createElement("canvas");
+                canvas.width = this.naturalWidth || this.getAttribute("width") || this.style.getPropertyValue("width") || 300; 
+                canvas.height = this.naturalHeight || this.getAttribute("height") || this.style.getPropertyValue("height") || 300; 
+
+                canvas.getContext("2d").drawImage(this, 0, 0);
+
+                var dataURI = canvas.toDataURL("image/png");
+                image.setAttribute("href", dataURI);
+                resolve();
+            };
+            if (_options.allowCrossOriginImages)
+                newImage.crossOrigin = "anonymous";
+            newImage.src = image.getAttribute("href") || image.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+        });
     }
 
     function getCustomFonts(fontUrls) {
@@ -245,22 +275,38 @@
 
         //get svg element
         setOptions(svgElement, options);
-        var svgString = setupSvg(svgElement, svg);
 
-        //add xml declaration
-        svgString = "<?xml version=\"1.0\" standalone=\"no\"?>\r\n" + svgString;
+        // -custom images
+        var images = svgElement.getElementsByTagName("image");
+        var image_promises = [];
+        if (images){
+            for (var image of images) {
+                if ((image.getAttribute("href") && image.getAttribute("href").indexOf("data:") === -1)
+                || (image.getAttribute("xlink:href") && image.getAttribute("xlink:href").indexOf("data:") === -1)) {
+                    image_promises.push(convertImageURLtoDataURI(image));
+                }
+            }
+        }
 
-        //convert svg string to URI data scheme.
-        var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+        Promise.all(image_promises).then(function() {
+            //get svg string
+            var svgString = setupSvg(svgElement, svg);
 
-        triggerDownload(url, svgName + ".svg");
+            //add xml declaration
+            svgString = "<?xml version=\"1.0\" standalone=\"no\"?>\r\n" + svgString;
+
+            //convert svg string to URI data scheme.
+            var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+
+            triggerDownload(url, svgName + ".svg");
+        });
     }
 
     function downloadRaster(svg, svgName, options, imageType) {
         //check dependency and values
         if (typeof canvg !== "object")
         {
-            //console.log("Error svg-export: PNG/JPEG export requires Canvg.js");
+            warnError("Error svg-export: PNG/JPEG export requires Canvg.js");
             return;
         }
         imageType = imageType.toLowerCase().replace("jpg", "jpeg");
@@ -292,10 +338,12 @@
         }
 
         var ctx = canvas.getContext("2d");
-        canvg.Canvg.fromString(ctx, svgString).start();
-
-        var image = canvas.toDataURL("image/" + imageType);
-        triggerDownload(image, svgName + "." + imageType, canvas);
+        var v = canvg.Canvg.fromString(ctx, svgString, { anonymousCrossOrigin: _options.allowCrossOriginImages })
+        v.start();
+        v.ready().then(function(){
+            var image = canvas.toDataURL("image/" + imageType);
+            triggerDownload(image, svgName + "." + imageType, canvas);
+        });
     }
     function downloadPng(svg, svgName, options) {
         downloadRaster(svg, svgName, options, "png");
@@ -333,48 +381,62 @@
         //check dependency and values
         if (typeof PDFDocument !== "function" || typeof SVGtoPDF !== "function" || typeof blobStream !== "function")
         {
-            //console.log("Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit");
+            warnError("Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit");
             return;
         }
+        
+        //get svg element
         var svgElement = getSvgElement(svg);
         if (!svgElement) { return; }
         if (svgName == null) {
             svgName = "chart";
         }
-
-        //get svg element
         setOptions(svgElement, options);
         var svgCloned = setupSvg(svgElement, svg, false);
 
         //create PDF doc
         var doc = new PDFDocument(_options.pdfOptions.pageLayout);
         var stream = doc.pipe(blobStream());
-        
+
+        // -custom images
+        var images = svgElement.getElementsByTagName("image");
+        var image_promises = [];
+        if (images){
+            for (var image of images) {
+                if ((image.getAttribute("href") && image.getAttribute("href").indexOf("data:") === -1)
+                || (image.getAttribute("xlink:href") && image.getAttribute("xlink:href").indexOf("data:") === -1)) {
+                    image_promises.push(convertImageURLtoDataURI(image));
+                }
+            }
+        }
+
         // -custom fonts
-        if (_options.pdfOptions.customFonts.length > 0){
-            var promises = getCustomFonts(_options.pdfOptions.customFonts.map(function(d) { return d.url; }));
-            Promise.all(promises).then(function(fonts) {
-                fonts.forEach(function(font, index) {
-                    var thisPdfOptions = _options.pdfOptions.customFonts[parseInt(index, 10)];
-                    //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
-                    var fontStyledElements = svgCloned.querySelectorAll("[style*=\"" +thisPdfOptions.fontName + "\"]");
-                    fontStyledElements.forEach(function(element) {
-                        element.style.fontFamily = thisPdfOptions.fontName;
+        Promise.all(image_promises).then(function() {
+            if (_options.pdfOptions.customFonts.length > 0) {
+                var font_promises = getCustomFonts(_options.pdfOptions.customFonts.map(function(d) { return d.url; }));
+                Promise.all(font_promises).then(function(fonts) {
+                    fonts.forEach(function(font, index) {
+                        var thisPdfOptions = _options.pdfOptions.customFonts[parseInt(index, 10)];
+                        //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
+                        var fontStyledElements = svgCloned.querySelectorAll("[style*=\"" +thisPdfOptions.fontName + "\"]");
+                        fontStyledElements.forEach(function(element) {
+                            element.style.fontFamily = thisPdfOptions.fontName;
+                        });
+                        if ((thisPdfOptions.url.indexOf(".ttc") !== -1 || thisPdfOptions.url.indexOf(".dfont") !== -1) && thisPdfOptions.styleName) {
+                            doc.registerFont(thisPdfOptions.fontName, font, thisPdfOptions.styleName);
+                        }
+                        else {
+                            doc.registerFont(thisPdfOptions.fontName, font);
+                        }
                     });
-                    if ((thisPdfOptions.url.indexOf(".ttc") !== -1 || thisPdfOptions.url.indexOf(".dfont") !== -1) && thisPdfOptions.styleName) {
-                        doc.registerFont(thisPdfOptions.fontName, font, thisPdfOptions.styleName);
-                    }
-                    else {
-                        doc.registerFont(thisPdfOptions.fontName, font);
-                    }
+                    fillPDFDoc(doc, svgName, svgCloned);
+                    doc.end();
                 });
+            } else {
                 fillPDFDoc(doc, svgName, svgCloned);
                 doc.end();
-            });
-        } else {
-            fillPDFDoc(doc, svgName, svgCloned);
-            doc.end();
-        }
+            }
+        });
 
         stream.on("finish", function() {
             var url = stream.toBlobURL("application/pdf");

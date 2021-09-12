@@ -11,6 +11,7 @@ This library features:
 - Exporting text in custom embedded fonts
 - Handling transparent background for JPEG format conversion
 - Exporting SVGs that are hidden on the DOM (`display: none`, SVGs in hidden modals, dropdowns or tabs, etc.) 
+- Exporting SVGs containing images (`<image>` tag)
 
 Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
@@ -21,7 +22,7 @@ Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 - Any of the following browsers: Chrome 38.0+, Edge 18.0+, Firefox 20.0+, Safari 10.1+, Opera 25+
 - [Canvg](https://github.com/canvg/canvg) (if you need JPEG/PNG export)
   ```html
-  <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.7/umd.min.js"></script>
   ```
 - [PDFKit](https://github.com/foliojs/pdfkit), [blob-stream](https://github.com/devongovett/blob-stream) and [SVG-to-PDFKit](https://github.com/alafr/SVG-to-PDFKit) (if you need PDF export). 
   ```html
@@ -77,6 +78,7 @@ See `index.html` for an example of how to use.
 - **scale** (number) : _a multiple by which the SVG can be increased or decreased in size. For PNG and JPEG exports, if width, height and scale are not specified, scale is set to `10` for a 10x enlargement to ensure that a higher resolution image is produced. Otherwise, the default scale is `1`_
 - **useCSS** (bool): _if SVG styles are specified in stylesheet externally rather than inline, setting `true` will add references to such styles from the styles computed by the browser. If useCSS is `false`, `currentColor` will be changed to `black`. This setting only applies if the SVG is passed as a DOM Element object, not as a string. Default is `true`_
 - **transparentBackgroundReplace** (string): _the color to be used to replace a transparent background in JPEG format export. Default is `white`_
+- **allowCrossOriginImages** (bool): _If the SVG contains images, this option permits the use of images from foreign origins. Defaults to `false`. Please read **Images within SVG** below for more detail._
 - **pdfOptions**
   - **pageLayout** (object): _e.g. `{ margin: 50, layout: "landscape" }`. This is provided to PDFKit's `addPage`. When the options **width** and **height** are not specified, a minimum size of 300x300 is used for the PDF page size; otherwise the page size wraps around the SVG size. Please see the [PDFKit documentation](https://pdfkit.org/docs/getting_started.html#adding_pages) for more info_
   - **addTitleToPage** (bool): _Default is `true`_
@@ -90,6 +92,9 @@ See `index.html` for an example of how to use.
 
 Regarding embedded custom fonts used in the SVG element (using @font-face for example), please note that for SVG export, custom fonts only show correctly if the system opening the SVG file has the font installed. If this is not possible, please consider using one of the other file formats available.
 
+### Images within SVG
+This library supports exporting SVGs that contain images in an `<image>` tag. If you need to export such SVGs to raster images or PDFs, please make sure that you have the latest version of Canvg and SVG-to-PDFKit. If the images' `href` are external, the `allowCrossOriginImages` option must be set to `true`, and the image servers must be configured with the ['Access-Control-Allow-Origin'](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image) CORS policy. 
+
 ### Colors
 
 Colors tested to work on all exported formats include CSS color names, HEX, RGB, RGBA and HSL.
@@ -100,7 +105,6 @@ Need to add SVG graphics to Office Word, Excel or Powerpoint presentations? [SVG
 
 ## Roadmap
 
-- [ ] Test external images within SVGs
 - [ ] Set up package.json and publish to npm (jsdom for Node?)
 
 ## Not Supported

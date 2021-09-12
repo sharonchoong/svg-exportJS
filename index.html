@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.7/umd.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.11.0/js/pdfkit.standalone.js"></script>
         <script src="https://github.com/devongovett/blob-stream/releases/download/v0.1.3/blob-stream.js"></script>
         <script src="svg-to-pdfkit.js"></script>
@@ -28,7 +28,7 @@
                         <pattern x="0" y="0" width="42" height="32" patternUnits="userSpaceOnUse" id="pattern" viewBox="0 -32 42 32"> 
                             <path fill="blue" d="M26,0c0-2.21,1.79-4,4-4c6.627,0,12-5.373,12-12s-5.373-12-12-12c-2.21,0-4-1.79-4-4h-2 c0,3.314,2.686,6,6,6c5.523,0,10,4.477,10,10S35.523-6,30-6c-3.314,0-6,2.686-6,6H26z M16,0c0-2.21-1.79-4-4-4 C5.373-4,0-9.373,0-16s5.373-12,12-12c2.21,0,4-1.79,4-4h2c0,3.314-2.686,6-6,6C6.477-26,2-21.523,2-16S6.477-6,12-6 c3.314,0,6,2.686,6,6H16z"/> 
                         </pattern> 
-                        <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="500" y1="50" x2="650" y2="200">
+                        <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="500" y1="50" x2="550" y2="100">
                             <stop stop-color="red" offset="0"/>
                             <stop stop-color="yellow" offset="1"/>
                         </linearGradient>
@@ -44,8 +44,9 @@
                         <circle cx="400" cy="200" r="150" fill="transparent" stroke="currentColor" opacity="0.8"></circle>
                     </g>
                     <text x="200" y="200" style="font-family: 'Segan', Arial;" font-size="20">Testing 123</text>
-                    <rect x="50" y="50" stroke="red" fill="url(#pattern)" width="150" height="150"/>
-                    <rect x="500" y="50" stroke="red" fill="url(#gradient)" width="150" height="150"/>
+                    <rect x="50" y="50" stroke="red" fill="url(#pattern)" width="100" height="100"/>
+                    <rect x="500" y="50" stroke="red" fill="url(#gradient)" width="50" height="50"/>
+                    <image href="samuel-pasteur-fosse-N0OOEpR1Lpo-unsplash.jpg" alt="test" x="50" y="250" height="100" width="150"/>
                 </svg>
             </div>
         </div>
@@ -74,7 +75,8 @@
             svgExport.downloadPng(svg_string, "Circles and rectangles chart");
         };
         document.querySelector("#btn_export_pdf").onclick = function(){
-            svgExport.downloadPdf(document.querySelector("#mysvg"), "Circles and rectangles chart", { 
+            svgExport.downloadPdf(document.querySelector("#mysvg"), "Circles and rectangles chart", 
+            { 
                 pdfOptions: {
                     chartCaption: "Hi there.  This is a test chart caption. ", 
                     pdfTextFontFamily: "Segan",
