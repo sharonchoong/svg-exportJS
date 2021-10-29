@@ -91,6 +91,7 @@
             useCSS: true,
             transparentBackgroundReplace: "white",
             allowCrossOriginImages: false,
+            CSSFilters: {},
             pdfOptions: {
                 customFonts: [],
                 pageLayout: { margin: 50, margins: {} },
@@ -137,27 +138,61 @@
         if (options && options.allowCrossOriginImages) {
             _options.allowCrossOriginImages = options.allowCrossOriginImages;
         }
+
+        //filtering options
+        if (options && options.CSSFilters) {
+            _options.CSSFilters = options.CSSFilters;
+        }
+
         setPdfOptions(options);
     }
 
-    function useCSSfromComputedStyles(element, elementClone) {
+    function useCSSfromComputedStyles(element, elementClone, elementsToRemove = []) {
         if (typeof getComputedStyle !== "function"){
             warnError("Warning svg-export: this browser is not able to get computed styles");
             return;
         } 
-        element.childNodes.forEach(function(child, index){
-            if (child.nodeType === 1/*Node.ELEMENT_NODE*/) {
-                useCSSfromComputedStyles(child, elementClone.childNodes[parseInt(index, 10)]);
-            }
-        });
         
         var compStyles = window.getComputedStyle(element);
+        let stopPropagation = false;
         if (compStyles.length > 0) {
             for (const compStyle of compStyles){
                 if (["width", "height", "inline-size", "block-size"].indexOf(compStyle) === -1 ) {
                     elementClone.style.setProperty(compStyle, compStyles.getPropertyValue(compStyle));
                 }
             };
+
+            //apply filters
+            if (element.localName !== "svg") { //do not filter out the root svg element
+                let inlineStyleAttribute = element.style;
+                for (let [filterKey, filterValue] of Object.entries(_options.CSSFilters)) {
+                    if (filterValue === null)
+                        continue;
+                    let styleValue = compStyles.getPropertyValue(filterKey);
+                    let inlineStyle = element.getAttribute(filterKey);
+                    if (!Array.isArray(filterValue)) {
+                        filterValue = [filterValue];
+                    }
+                    if (filterValue.includes(styleValue)) {
+                        stopPropagation = true;
+                        elementsToRemove.push(elementClone);
+                    } else if (inlineStyleAttribute[filterKey].length > 0 && filterValue.includes(inlineStyleAttribute[filterKey])) {
+                        stopPropagation = true;
+                        elementsToRemove.push(elementClone);
+                    } else if (filterValue.includes(inlineStyle)) {
+                        stopPropagation = true;
+                        elementsToRemove.push(elementClone);
+                    }
+                }
+            }
+        }
+
+        if (!stopPropagation) {
+            element.childNodes.forEach(function(child, index){
+                if (child.nodeType === 1/*Node.ELEMENT_NODE*/) {
+                    useCSSfromComputedStyles(child, elementClone.childNodes[parseInt(index, 10)], elementsToRemove);
+                }
+            });
         }
     }
 
@@ -165,8 +200,13 @@
     {
         if (typeof asString === "undefined") { asString = true; }
         if (_options.useCSS && typeof originalSvg === "object") {
-            useCSSfromComputedStyles(originalSvg, svgElement);
+            let elementsToRemove = []
+            useCSSfromComputedStyles(originalSvg, svgElement, elementsToRemove);
             svgElement.style.display = null;
+
+            elementsToRemove.forEach( elt => {
+                elt.remove();
+            });
         }
 
         svgElement.style.width = null;
