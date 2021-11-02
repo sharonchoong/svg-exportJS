@@ -56,8 +56,10 @@
             <button id="btn_export_png">PNG (5000 x 5000 custom size)</button>
             <button id="btn_export_png_string">PNG (svg string)</button>
             <button id="btn_export_pdf">PDF (with captions)</button>
+            <button id="btn_export_svg_filters">SVG (filtered)</button>
         </div>
         <p>Note: for the PNG (svg string) export, the red circle does not render as red because the serialized string does not contain the "color: red" style for "currentColor", which is actually found on the SVG's container</div>
+        <p>Note: for the SVG (filtered) export, elements that have a transparent fill (red circle) or a blue or yellow stroke (both top left circles) are filtered out</div>
     </body>
     <script>
         document.querySelector("#btn_export_svg").onclick = function(){
@@ -81,6 +83,15 @@
                     chartCaption: "Hi there.  This is a test chart caption. ", 
                     pdfTextFontFamily: "Segan",
                     customFonts: [ { url: "fonts/Segan/Segan-Light.ttf", fontName: "Segan" } ]
+                } 
+            });
+        };
+        document.querySelector("#btn_export_svg_filters").onclick = function(){
+            svgExport.downloadSvg(document.querySelector("#mysvg"), "Only rectangles chart", 
+            {
+                CSSFilters: {
+                    fill: "transparent",
+                    stroke: ["blue", "yellow"]
                 } 
             });
         };
