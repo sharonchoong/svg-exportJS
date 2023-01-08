@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.7/umd.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.11.0/js/pdfkit.standalone.js"></script>
-        <script src="https://github.com/devongovett/blob-stream/releases/download/v0.1.3/blob-stream.js"></script>
-        <script src="svg-to-pdfkit.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/js/pdfkit.standalone.js" integrity="sha256-41qk5dewLKulpzhP3H6G7mY+5q+vzxMaxolsOGmZD/8=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/blob-stream-browserify@0.1.3/index.js" integrity="sha256-bFrIR3MiIsKhM2EDZdTJ3eY7iSluq1W7e6dNVwScEYw=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
         <script src="svg-export.min.js"></script>
         <style>
             text {
@@ -59,8 +59,8 @@
             <button id="btn_export_pdf">PDF (with captions)</button>
             <button id="btn_export_svg_filters">SVG (filtered)</button>
         </div>
-        <p>Note: for the PNG (svg string) export, the red circle does not render as red because the serialized string does not contain the "color: red" style for "currentColor", which is actually found on the SVG's container</div>
-        <p>Note: for the SVG (filtered) export, circles and the "Subtitle" text with "font-size: 10" are filtered out</div>
+        <p>Note: for the "PNG (svg string)" export, the red circle does not render as red because the serialized string does not contain the "color: red" style for "currentColor", which is actually found on the SVG's container</div>
+        <p>Note: for the "SVG (filtered)" export, circles and the "Subtitle" text with "font-size: 10" are filtered out</div>
     </body>
     <script>
         document.querySelector("#btn_export_svg").onclick = function(){

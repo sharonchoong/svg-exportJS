@@ -23,13 +23,13 @@ Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 - Any of the following browsers: Chrome 38.0+, Edge 18.0+, Firefox 20.0+, Safari 10.1+, Opera 25+
 - [Canvg](https://github.com/canvg/canvg) (if you need JPEG/PNG export)
   ```html
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.7/umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   ```
 - [PDFKit](https://github.com/foliojs/pdfkit), [blob-stream](https://github.com/devongovett/blob-stream) and [SVG-to-PDFKit](https://github.com/alafr/SVG-to-PDFKit) (if you need PDF export). 
   ```html
-  <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.11.0/js/pdfkit.min.js"></script>
-  <script src="https://github.com/devongovett/blob-stream/releases/download/v0.1.3/blob-stream.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/js/pdfkit.standalone.js" integrity="sha256-41qk5dewLKulpzhP3H6G7mY+5q+vzxMaxolsOGmZD/8=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/blob-stream-browserify@0.1.3/index.js" integrity="sha256-bFrIR3MiIsKhM2EDZdTJ3eY7iSluq1W7e6dNVwScEYw=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
   ```
 Please note that the CDNs above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above.
 
@@ -41,7 +41,7 @@ Either download the plugin and save it in your project, or use script-tags in yo
 - Add the plugin using the file hosted on Github Pages. Place the script within the `<head>` tag in your html files (place prerequisites first):
   ```html
   <!-- svg-exportJS prerequisite: canvg -->
-  <script src="https://unpkg.com/canvg@3.0.1/lib/umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <!-- svg-exportJS plugin -->
   <script src="https://sharonchoong.github.io/svg-exportJS/svg-export.min.js"></script>
   ```
