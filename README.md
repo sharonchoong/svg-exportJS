@@ -111,6 +111,7 @@ Need to add SVG graphics to Office Word, Excel or Powerpoint presentations? [SVG
 
 ## Roadmap
 
+- [ ] Open the generated file in a new window/tab instead of downloading the file 
 - [ ] Set up package.json and publish to npm (jsdom for Node?)
 
 ## Not Supported
