@@ -85,6 +85,8 @@
         _options = {
             originalWidth: 100,
             originalHeight: 100,
+            originalMinXViewBox: 0,
+            originalMinYViewBox: 0,
             width: 100,
             height: 100, 
             scale: 1,
@@ -112,6 +114,8 @@
             || (svgElement.getAttribute("width") && svgElement.getAttribute("width").indexOf("%") !== -1 )
             ? svgElement.getBBox().width * _options.scale
             : svgElement.getBoundingClientRect().width * _options.scale;
+        _options.originalMinXViewBox = svgElement.getAttribute("viewBox") ? svgElement.getAttribute("viewBox").split(/\s/)[0] : 0;
+        _options.originalMinYViewBox = svgElement.getAttribute("viewBox") ? svgElement.getAttribute("viewBox").split(/\s/)[1] : 0;
 
         //custom options
         if (options && options.scale && typeof options.scale === "number") {
@@ -214,7 +218,7 @@
         svgElement.setAttribute("width", _options.width);
         svgElement.setAttribute("height", _options.height);
         svgElement.setAttribute("preserveAspectRatio", "none");
-        svgElement.setAttribute("viewBox", "0 0 " + (_options.originalWidth) + " " + (_options.originalHeight));
+        svgElement.setAttribute("viewBox", (_options.originalMinXViewBox) + " " + (_options.originalMinYViewBox) +" " + (_options.originalWidth) + " " + (_options.originalHeight));
        
         var elements = document.getElementsByClassName("tempdiv-svg-exportJS");
         while(elements.length > 0){
