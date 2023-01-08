@@ -85,12 +85,15 @@
         _options = {
             originalWidth: 100,
             originalHeight: 100,
+            originalMinXViewBox: 0,
+            originalMinYViewBox: 0,
             width: 100,
             height: 100, 
             scale: 1,
             useCSS: true,
             transparentBackgroundReplace: "white",
             allowCrossOriginImages: false,
+            elementsToExclude: [],
             pdfOptions: {
                 customFonts: [],
                 pageLayout: { margin: 50, margins: {} },
@@ -111,6 +114,8 @@
             || (svgElement.getAttribute("width") && svgElement.getAttribute("width").indexOf("%") !== -1 )
             ? svgElement.getBBox().width * _options.scale
             : svgElement.getBoundingClientRect().width * _options.scale;
+        _options.originalMinXViewBox = svgElement.getAttribute("viewBox") ? svgElement.getAttribute("viewBox").split(/\s/)[0] : 0;
+        _options.originalMinYViewBox = svgElement.getAttribute("viewBox") ? svgElement.getAttribute("viewBox").split(/\s/)[1] : 0;
 
         //custom options
         if (options && options.scale && typeof options.scale === "number") {
@@ -137,6 +142,10 @@
         if (options && options.allowCrossOriginImages) {
             _options.allowCrossOriginImages = options.allowCrossOriginImages;
         }
+        if (options && options.excludeByCSSSelector && typeof(options.excludeByCSSSelector) === "string") {
+            _options.elementsToExclude = svgElement.querySelectorAll(options.excludeByCSSSelector);
+        }
+
         setPdfOptions(options);
     }
 
@@ -145,11 +154,12 @@
             warnError("Warning svg-export: this browser is not able to get computed styles");
             return;
         } 
-        element.childNodes.forEach(function(child, index){
-            if (child.nodeType === 1/*Node.ELEMENT_NODE*/) {
-                useCSSfromComputedStyles(child, elementClone.childNodes[parseInt(index, 10)]);
+        
+        for (var i = 0; i < _options.elementsToExclude.length; i++) {
+            if (_options.elementsToExclude[i] === elementClone) { // prevent continuation of this function if user wants to exclude the child element 
+                return;
             }
-        });
+        }
         
         var compStyles = window.getComputedStyle(element);
         if (compStyles.length > 0) {
@@ -159,22 +169,31 @@
                 }
             };
         }
+        
+        element.childNodes.forEach(function(child, index){
+            if (child.nodeType === 1/*Node.ELEMENT_NODE*/) {
+                useCSSfromComputedStyles(child, elementClone.childNodes[parseInt(index, 10)]);
+            }
+        });
     }
 
-    function setupSvg(svgElement, originalSvg, asString)
-    {
+    function setupSvg(svgElement, originalSvg, asString) {
         if (typeof asString === "undefined") { asString = true; }
         if (_options.useCSS && typeof originalSvg === "object") {
             useCSSfromComputedStyles(originalSvg, svgElement);
             svgElement.style.display = null;
         }
+        
+        _options.elementsToExclude.forEach(function(element) {
+            element.remove();
+        });
 
         svgElement.style.width = null;
         svgElement.style.height = null;
         svgElement.setAttribute("width", _options.width);
         svgElement.setAttribute("height", _options.height);
         svgElement.setAttribute("preserveAspectRatio", "none");
-        svgElement.setAttribute("viewBox", "0 0 " + (_options.originalWidth) + " " + (_options.originalHeight));
+        svgElement.setAttribute("viewBox", (_options.originalMinXViewBox) + " " + (_options.originalMinYViewBox) +" " + (_options.originalWidth) + " " + (_options.originalHeight));
        
         var elements = document.getElementsByClassName("tempdiv-svg-exportJS");
         while(elements.length > 0){
