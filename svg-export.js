@@ -142,7 +142,7 @@
         if (options && options.allowCrossOriginImages) {
             _options.allowCrossOriginImages = options.allowCrossOriginImages;
         }
-        if (options && options.excludeByCSSSelector) {
+        if (options && options.excludeByCSSSelector && typeof(options.excludeByCSSSelector) === "string") {
             _options.elementsToExclude = svgElement.querySelectorAll(options.excludeByCSSSelector);
         }
 
@@ -177,8 +177,7 @@
         });
     }
 
-    function setupSvg(svgElement, originalSvg, asString)
-    {
+    function setupSvg(svgElement, originalSvg, asString) {
         if (typeof asString === "undefined") { asString = true; }
         if (_options.useCSS && typeof originalSvg === "object") {
             useCSSfromComputedStyles(originalSvg, svgElement);
@@ -187,7 +186,7 @@
         
         _options.elementsToExclude.forEach(function(element) {
             element.remove();
-        })
+        });
 
         svgElement.style.width = null;
         svgElement.style.height = null;
