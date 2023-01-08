@@ -8,7 +8,7 @@ This library features:
 - Setting custom size for exported image or graphic
 - High resolution raster image, using `scale`
 - Including external CSS styles in SVG
-- Filtering out parts of the SVG based on css rules
+- Filtering out parts of the SVG by CSS selector
 - Exporting text in custom embedded fonts
 - Handling transparent background for JPEG format conversion
 - Exporting SVGs that are hidden on the DOM (`display: none`, SVGs in hidden modals, dropdowns or tabs, etc.) 
@@ -77,10 +77,10 @@ See `index.html` for an example of how to use.
 - **width** (number) : _the width of the resulting image exported, in pixels. Default is the SVG's width on the DOM_
 - **height** (number) : _the height of the resulting image exported, in pixels. Default is the SVG's height on the DOM_
 - **scale** (number) : _a multiple by which the SVG can be increased or decreased in size. For PNG and JPEG exports, if width, height and scale are not specified, scale is set to `10` for a 10x enlargement to ensure that a higher resolution image is produced. Otherwise, the default scale is `1`_
-- **useCSS** (bool): _if SVG styles are specified in stylesheet externally rather than inline, setting `true` will add references to such styles from the styles computed by the browser. If useCSS is `false`, `currentColor` will be changed to `black`. This setting only applies if the SVG is passed as a DOM Element object, not as a string. Default is `true`_
+- **useCSS** (bool): _if SVG styles are specified in stylesheet externally rather than inline, setting `true` will add references to such styles from the styles computed by the browser. If useCSS is `false`, `currentColor` will be changed to `black`. This setting only applies if the SVG is passed as a DOM Element object, not as a string. Set this to `false` whenever possible to optimize performance. When set to `true`, all elements in the SVG are iterated to obtain their computed styles, which can be costly for large SVGs (please read **Optimizing for large SVGs** below for more detail). Default is `true`_
+- **excludeByCSSSelector** (string): _e.g. `[stroke='red'], [stroke='green'], [display='none'], .text-muted`. Elements matching the specified [CSS selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors) will not be included in the generated file. This can be used to remove unwanted/unsupported elements of the SVG from the exported file, or to optimize performance for large SVGs. Please read **Optimizing for large SVGs** and **Not Supported** below for more detail._
 - **transparentBackgroundReplace** (string): _the color to be used to replace a transparent background in JPEG format export. Default is `white`_
 - **allowCrossOriginImages** (bool): _If the SVG contains images, this option permits the use of images from foreign origins. Defaults to `false`. Please read **Images within SVG** below for more detail._
-- **CSSFilters** (object): _e.g. `{ color: ["red", "green"], display: "none" }`. If the SVG contains element having the provided styles, they will not be included in the generated file. Children of these elements will also be removed. Please read **Filtering options** below for more detail._
 - **pdfOptions**
   - **pageLayout** (object): _e.g. `{ margin: 50, layout: "landscape" }`. This is provided to PDFKit's `addPage`. When the options **width** and **height** are not specified, a minimum size of 300x300 is used for the PDF page size; otherwise the page size wraps around the SVG size. Please see the [PDFKit documentation](https://pdfkit.org/docs/getting_started.html#adding_pages) for more info_
   - **addTitleToPage** (bool): _Default is `true`_
@@ -97,13 +97,9 @@ Regarding embedded custom fonts used in the SVG element (using @font-face for ex
 ### Images within SVG
 This library supports exporting SVGs that contain images in an `<image>` tag. If you need to export such SVGs to raster images or PDFs, please make sure that you have the latest version of Canvg and SVG-to-PDFKit. If the images' `href` are external, the `allowCrossOriginImages` option must be set to `true`, and the image servers must be configured with the ['Access-Control-Allow-Origin'](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image) CORS policy. 
 
-### Filtering options
-- Filtering options can be provided as single values (_e.g. `{ display: "none" }`_) or as an array of values (_e.g. `{ color: ["red, "blue"] }`_) if multiple values of the same property need to be filtered out.
-- The array notation acts as a logical **OR**, not as a logical **AND**.  
-- Filtering options should work regardless of where the style has been set (external css file, inline attribute (_e.g. `<circle color="red" .../>`_) or inline style attribute (_e.g. `<circle style="color:red" .../>`_)).
-- Since the filters are compared with the computed style, CSS properties set in CSS files can be expressed differently. This is for example the case when dealing with colors and transparency, and should be handled using the array notation to provide multiple alternatives. A few non-exhaustive examples:
-  - `fill: transparent` gets computed to `rgba(0, 0, 0, 0)`
-  - `color: red` gets computed to `rgb(255, 0, 0)`
+### Optimizing for large SVGs
+- Set the `useCSS` option to `false` whenever possible to optimize performance. When set to `true`, all elements in the SVG are iterated to obtain their computed styles, which can be costly for large SVGs.
+- If you have no choice but to set `useCSS` to `true` for a large SVG, but it is causing slow performance or a frozen browser, you can also try filtering out unneeded elements within the SVG, using the `excludeByCSSSelector` setting. For example, you could exclude all elements in the SVG that are styled as `display: none`, exclude elements that have the attribute `fill=transparent`, or exclude unneeded elements that have a specific class name.
 
 ### Colors
 
