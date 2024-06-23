@@ -81,6 +81,7 @@ See `index.html` for an example of how to use.
 - **excludeByCSSSelector** (string): _e.g. `[stroke='red'], [stroke='green'], [display='none'], .text-muted`. Elements matching the specified [CSS selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors) will not be included in the generated file. This can be used to remove unwanted/unsupported elements of the SVG from the exported file, or to optimize performance for large SVGs. Please read **Optimizing for large SVGs** and **Not Supported** below for more detail._
 - **transparentBackgroundReplace** (string): _the color to be used to replace a transparent background in JPEG format export. Default is `white`_
 - **allowCrossOriginImages** (bool): _If the SVG contains images, this option permits the use of images from foreign origins. Defaults to `false`. Please read **Images within SVG** below for more detail._
+- **onDone** (function): _an optional callback function that will be called after the file export has completed._
 - **pdfOptions**
   - **pageLayout** (object): _e.g. `{ margin: 50, layout: "landscape" }`. This is provided to PDFKit's `addPage`. When the options **width** and **height** are not specified, a minimum size of 300x300 is used for the PDF page size; otherwise the page size wraps around the SVG size. Please see the [PDFKit documentation](https://pdfkit.org/docs/getting_started.html#adding_pages) for more info_
   - **addTitleToPage** (bool): _Default is `true`_

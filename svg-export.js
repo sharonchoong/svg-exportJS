@@ -103,7 +103,7 @@
                 pdfTitleFontSize: 20,
                 pdfCaptionFontSize: 14
             },
-            onDone: function () { }
+            onDone: null
         };
 
         //original size
@@ -278,9 +278,7 @@
             } else {
                 blob = new Blob([new Uint8Array(array)], { type: mimeString });
             }
-            var retVal = navigator.msSaveBlob(blob, name);
-            _options.onDone();
-            return retVal;
+            navigator.msSaveBlob(blob, name);
         } else {
             var link = document.createElement("a");
             link.download = name;
@@ -288,6 +286,8 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+        if (_options.onDone) {
             _options.onDone();
         }
     }
