@@ -102,7 +102,8 @@
                 pdfTextFontFamily: "Helvetica",
                 pdfTitleFontSize: 20,
                 pdfCaptionFontSize: 14
-            }
+            },
+            onDone: null
         };
 
         //original size
@@ -144,6 +145,9 @@
         }
         if (options && options.excludeByCSSSelector && typeof(options.excludeByCSSSelector) === "string") {
             _options.elementsToExclude = svgElement.querySelectorAll(options.excludeByCSSSelector);
+        }
+        if (options && options.onDone && typeof(options.onDone) === "function") {
+            _options.onDone = options.onDone;
         }
 
         setPdfOptions(options);
@@ -274,7 +278,7 @@
             } else {
                 blob = new Blob([new Uint8Array(array)], { type: mimeString });
             }
-            return navigator.msSaveBlob(blob, name);
+            navigator.msSaveBlob(blob, name);
         } else {
             var link = document.createElement("a");
             link.download = name;
@@ -282,6 +286,9 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+        if (_options.onDone) {
+            _options.onDone();
         }
     }
 
