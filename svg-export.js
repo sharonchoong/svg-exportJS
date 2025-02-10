@@ -115,8 +115,17 @@
             || (svgElement.getAttribute("width") && svgElement.getAttribute("width").indexOf("%") !== -1 )
             ? svgElement.getBBox().width * _options.scale
             : svgElement.getBoundingClientRect().width * _options.scale;
-        _options.originalMinXViewBox = svgElement.getAttribute("viewBox") ? svgElement.getAttribute("viewBox").split(/\s/)[0] : 0;
-        _options.originalMinYViewBox = svgElement.getAttribute("viewBox") ? svgElement.getAttribute("viewBox").split(/\s/)[1] : 0;
+        
+            const viewBox = svgElement.getAttribute("viewBox");
+            if (viewBox) {
+                const values = viewBox.split(/[\s,]+/); // Split on one or more spaces or commas
+                _options.originalMinXViewBox = values[0] ?? 0;
+                _options.originalMinYViewBox = values[1] ?? 0;
+            } else {
+                _options.originalMinXViewBox = 0;
+                _options.originalMinYViewBox = 0;
+            }
+        
 
         //custom options
         if (options && options.scale && typeof options.scale === "number") {
