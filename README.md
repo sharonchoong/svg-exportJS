@@ -21,9 +21,10 @@ Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 ### Prerequisites
 
 - Any of the following browsers: Chrome 38.0+, Edge 18.0+, Firefox 20.0+, Safari 10.1+, Opera 25+
-- [Canvg](https://github.com/canvg/canvg) (if you need JPEG/PNG export)
+- [Canvg](https://github.com/canvg/canvg) V4 (if you need JPEG/PNG export)
   ```html
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
+  <script src=https://cdn.skypack.dev/canvg@^4.0.0"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   ```
 - [PDFKit](https://github.com/foliojs/pdfkit), [blob-stream](https://github.com/devongovett/blob-stream) and [SVG-to-PDFKit](https://github.com/alafr/SVG-to-PDFKit) (if you need PDF export). 
   ```html
