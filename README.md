@@ -16,6 +16,18 @@ This library features:
 
 Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
+## Features
+
+- Exporting SVG DOM Element objects or serialized SVG string to SVG file, PNG, JPEG, PDF
+- Setting custom size for exported image or graphic
+- High resolution raster image, using `scale`
+- Including external CSS styles in SVG
+- Filtering out parts of the SVG by CSS selector
+- Exporting text in custom embedded fonts
+- Handling transparent background for JPEG format conversion
+- Exporting SVGs that are hidden on the DOM (`display: none`, SVGs in hidden modals, dropdowns or tabs, etc.) 
+- Exporting SVGs containing images (`<image>` tag)
+
 ## Getting Started
 
 ### Prerequisites
@@ -34,44 +46,140 @@ Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
   ```
 Please note that the CDNs above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above.
 
-### Installation
+## Installation
 
-Either download the plugin and save it in your project, or use script-tags in your html files using the hosted url.
+### Option 1: NPM (Recommended)
+```bash
+npm install svg-export
+```
 
-- Download the plugin `svg-export.min.js` from this repo, and add it to your project.
-- Add the plugin using the file hosted on Github Pages. Place the script within the `<head>` tag in your html files (place prerequisites first):
-  ```html
-  <!-- svg-exportJS prerequisite: canvg -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- svg-exportJS plugin -->
-  <script src="https://sharonchoong.github.io/svg-exportJS/svg-export.min.js"></script>
-  ```
+For PDF export functionality:
+```bash
+npm install pdfkit svg-to-pdfkit blob-stream
+```
+
+For PNG/JPEG export functionality:
+```bash
+npm install canvg
+```
+
+### Option 2: Script Tags
+```html
+<!-- Core library -->
+<script src="path/to/svg-export.min.js"></script>
+
+<!-- Optional: For PNG/JPEG export -->
+<script src="https://cdn.skypack.dev/canvg@^4.0.0"></script>
+
+<!-- Optional: For PDF export -->
+<script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/js/pdfkit.standalone.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/blob-stream-browserify@0.1.3/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js"></script>
+```
 
 ## Usage
 
-Given the `<svg>` element:
+### ES Modules
 
+Basic SVG export (no dependencies required):
+```javascript
+import SvgExport from 'svg-export';
+
+const exporter = new SvgExport();
+exporter.downloadSvg(mySvg, 'chart');
+```
+
+With PNG/JPEG export:
+```javascript
+import SvgExport from 'svg-export';
+import { Canvg, presets } from 'canvg';
+
+const exporter = new SvgExport({
+    canvg: Canvg,
+    presets: presets
+});
+
+exporter.downloadPng(mySvg, 'chart');
+```
+
+With PDF export:
+```javascript
+import SvgExport from 'svg-export';
+import PDFDocument from 'pdfkit';
+import SVGtoPDF from 'svg-to-pdfkit';
+import blobStream from 'blob-stream';
+
+const exporter = new SvgExport({
+    pdfkit: PDFDocument,
+    svgToPdf: SVGtoPDF,
+    blobStream: blobStream
+});
+
+exporter.downloadPdf(mySvg, 'chart');
+```
+
+With all features:
+```javascript
+import SvgExport from 'svg-export';
+import { Canvg, presets } from 'canvg';
+import PDFDocument from 'pdfkit';
+import SVGtoPDF from 'svg-to-pdfkit';
+import blobStream from 'blob-stream';
+
+const exporter = new SvgExport({
+    canvg: Canvg,
+    presets: presets,
+    pdfkit: PDFDocument,
+    svgToPdf: SVGtoPDF,
+    blobStream: blobStream
+});
+```
+
+### Browser Script Tags
+
+```javascript
+// Basic SVG export
+const exporter = new SvgExport();
+
+// With PNG/JPEG export
+const exporter = new SvgExport({
+    canvg: Canvg,
+    presets: presets
+});
+
+// With PDF export
+const exporter = new SvgExport({
+    pdfkit: PDFDocument,
+    svgToPdf: SVGtoPDF,
+    blobStream: blobStream
+});
+```
+
+### Example Usage
+
+Given an SVG element:
 ```html
 <svg id="mysvg">...</svg>
 ```
 
-In Javascript:
-
+You can export it like this:
 ```javascript
-svgExport.downloadSvg(
-  document.getElementById("mysvg"), // SVG DOM Element object to be exported. Alternatively, a string of the serialized SVG can be passed
-  "chart title name", // chart title: file name of exported image
-  { width: 200, height: 200 } // options (optional, please see below for a list of option properties)
+// Export as SVG
+exporter.downloadSvg(
+    document.getElementById("mysvg"), // SVG DOM Element or SVG string
+    "chart-name",                     // Output filename
+    { width: 200, height: 200 }       // Options (optional)
 );
-svgExport.downloadPng("<svg id=\"mysvg\"></svg>", "chart title name", {
-  width: 200,
-  height: 200,
-});
-svgExport.downloadJpeg(svgElementObject, "chart title name");
-svgExport.downloadPdf(svgString, "chart title name");
-```
 
-See `index.html` for an example of how to use.
+// Export as PNG
+exporter.downloadPng(document.getElementById("mysvg"), "chart-name");
+
+// Export as JPEG
+exporter.downloadJpeg(document.getElementById("mysvg"), "chart-name");
+
+// Export as PDF
+exporter.downloadPdf(document.getElementById("mysvg"), "chart-name");
+```
 
 ## Options
 

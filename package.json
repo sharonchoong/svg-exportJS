@@ -1,11 +1,13 @@
 {
   "name": "svg-export",
+  "type": "module",
   "version": "1.2.0",
   "description": "Javascript SVG parser and renderer on Canvas with export capabilities",
-  "main": "lib/svg-export.js",
-  "module": "lib/svg-export.js",
+  "main": "dist/svg-export.min.js",
+  "module": "src/svg-export.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "uglifyjs  ./src/svg-export.js > ./dist/svg-export.min.js"
   },
   "keywords": [
     "svg",
@@ -21,9 +23,23 @@
     "type": "git",
     "url": "git+https://github.com/yourusername/svg-export.git"
   },
-  "dependencies": {
+  "devDependencies": {
+    "uglify-js": "^3.19.3"
+  },
+  "peerDependencies": {
     "canvg": "^4.0.1",
     "pdfkit": "^0.13.0",
     "svg-to-pdfkit": "^0.1.8"
+  },
+  "peerDependenciesMeta": {
+    "canvg": {
+      "optional": true
+    },
+    "pdfkit": {
+      "optional": true
+    },
+    "svg-to-pdfkit": {
+      "optional": true
+    }
   }
-} 
+}

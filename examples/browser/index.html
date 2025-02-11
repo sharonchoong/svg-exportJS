@@ -10,7 +10,7 @@
         integrity="sha256-bFrIR3MiIsKhM2EDZdTJ3eY7iSluq1W7e6dNVwScEYw=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js"
         integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
-    <script src="../lib/svg-export.js"></script>
+    <script src="../../dist/svg-export.min.js"></script>
     <style>
         .container {
             max-width: 800px;
@@ -69,11 +69,16 @@
 
         import { Canvg, presets } from 'https://cdn.skypack.dev/canvg@^4.0.0';
 
-        window.Canvg = Canvg;
-        window.presets = presets;
-        console.log(typeof Canvg);
+        
+        
 
-        const exporter = new SvgExport();
+        const exporter = new SvgExport({
+            canvg: Canvg,
+            presets: presets,
+            pdfkit: PDFDocument,
+            blobStream: blobStream,
+            svgToPdf: SVGtoPDF
+        });
         const svg = document.getElementById('demo-svg');
 
         window.exportSVG = function() {

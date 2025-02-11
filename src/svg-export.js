@@ -8,9 +8,37 @@
  */
 
 class SvgExport {
-  constructor() {
+  constructor(dependencies = {}) {
     this.version = "1.2.0";
     this._options = {};
+
+    // Store dependencies
+    this._canvg = dependencies.canvg;
+    this._pdfkit = dependencies.pdfkit;
+    this._svgToPdf = dependencies.svgToPdf;
+    this._blobStream = dependencies.blobStream;
+    this._presets = dependencies.presets;
+
+    // Check available dependencies
+    this._hasCanvg = typeof this._canvg !== "undefined";
+    this._hasPDF =
+      typeof this._pdfkit !== "undefined" &&
+      typeof this._svgToPdf !== "undefined" &&
+      typeof this._blobStream !== "undefined";
+  }
+
+  // Optional method to set dependencies after construction
+  setDependencies(dependencies) {
+    this._canvg = dependencies.canvg;
+    this._pdfkit = dependencies.pdfkit;
+    this._svgToPdf = dependencies.svgToPdf;
+    this._blobStream = dependencies.blobStream;
+
+    this._hasCanvg = typeof this._canvg !== "undefined";
+    this._hasPDF =
+      typeof this._pdfkit !== "undefined" &&
+      typeof this._svgToPdf !== "undefined" &&
+      typeof this._blobStream !== "undefined";
   }
 
   // Private helper methods
@@ -21,7 +49,7 @@ class SvgExport {
   }
 
   _getSvgElement(svg) {
-    var div = document.createElement("div");
+    let div = document.createElement("div");
     div.className = "tempdiv-svg-exportJS";
 
     if (typeof svg === "string") {
@@ -34,14 +62,13 @@ class SvgExport {
       return null;
     }
 
-    var svgClone = svg.cloneNode(true);
+    let svgClone = svg.cloneNode(true);
     svgClone.style.display = null;
     div.appendChild(svgClone);
     div.style.visibility = "hidden";
     div.style.display = "table";
     div.style.position = "absolute";
     document.body.appendChild(div);
-    console.log(svgClone.outerHTML);
     return svgClone;
   }
 
@@ -196,14 +223,14 @@ class SvgExport {
       return;
     }
 
-    for (var i = 0; i < this._options.elementsToExclude.length; i++) {
+    for (let i = 0; i < this._options.elementsToExclude.length; i++) {
       if (this._options.elementsToExclude[i] === elementClone) {
         // prevent continuation of this function if user wants to exclude the child element
         return;
       }
     }
 
-    var compStyles = window.getComputedStyle(element);
+    let compStyles = window.getComputedStyle(element);
     if (compStyles.length > 0) {
       for (const compStyle of compStyles) {
         if (
@@ -259,16 +286,16 @@ class SvgExport {
         this._options.originalHeight
     );
 
-    var elements = document.getElementsByClassName("tempdiv-svg-exportJS");
+    let elements = document.getElementsByClassName("tempdiv-svg-exportJS");
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
     }
 
     //get svg string
     if (asString) {
-      var serializer = new XMLSerializer();
+      let serializer = new XMLSerializer();
       //setting currentColor to black matters if computed styles are not used
-      var svgString = serializer
+      let svgString = serializer
         .serializeToString(svgElement)
         .replace(/currentColor/g, "black");
 
@@ -330,10 +357,10 @@ class SvgExport {
   }
 
   getCustomFonts(fontUrls) {
-    var promises = [];
+    let promises = [];
     fontUrls.forEach((fontUrl) => {
-      var promise = new Promise((resolve, reject) => {
-        var req = new XMLHttpRequest();
+      let promise = new Promise((resolve, reject) => {
+        let req = new XMLHttpRequest();
         req.onreadystatechange = () => {
           if (req.readyState === 4 && req.status === 200) {
             resolve(req.response);
@@ -351,13 +378,13 @@ class SvgExport {
   triggerDownload(uri, name, canvas) {
     name = name.replace(/[/\\?%*:|"<>]/g, "_");
     if (navigator.msSaveBlob) {
-      var binary = decodeURIComponent(uri.split(",")[1]),
+      let binary = decodeURIComponent(uri.split(",")[1]),
         array = [];
-      var mimeString = uri.split(",")[0].split(":")[1].split(";")[0];
-      for (var i = 0; i < binary.length; i++) {
+      let mimeString = uri.split(",")[0].split(":")[1].split(";")[0];
+      for (let i = 0; i < binary.length; i++) {
         array.push(binary.charCodeAt(i));
       }
-      var blob = null;
+      let blob = null;
       if (canvas != null) {
         blob = canvas.msToBlob();
       } else {
@@ -365,7 +392,7 @@ class SvgExport {
       }
       navigator.msSaveBlob(blob, name);
     } else {
-      var link = document.createElement("a");
+      let link = document.createElement("a");
       link.download = name;
       link.href = uri;
       document.body.appendChild(link);
@@ -389,10 +416,10 @@ class SvgExport {
     this._setOptions(svgElement, options);
 
     // -custom images
-    var images = svgElement.getElementsByTagName("image");
-    var image_promises = [];
+    let images = svgElement.getElementsByTagName("image");
+    let image_promises = [];
     if (images) {
-      for (var image of images) {
+      for (let image of images) {
         if (
           (image.getAttribute("href") &&
             image.getAttribute("href").indexOf("data:") === -1) ||
@@ -407,13 +434,13 @@ class SvgExport {
     // Use arrow function to preserve 'this' context
     Promise.all(image_promises).then(() => {
       //get svg string
-      var svgString = this.setupSvg(svgElement, svg);
+      let svgString = this.setupSvg(svgElement, svg);
 
       //add xml declaration
       svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
 
       //convert svg string to URI data scheme.
-      var url =
+      let url =
         "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
 
       this.triggerDownload(url, svgName + ".svg");
@@ -421,11 +448,13 @@ class SvgExport {
   }
 
   downloadRaster(svg, svgName, options, imageType) {
-    //check dependency and values
-    if (typeof Canvg !== "function") {
-      this._warnError("Error svg-export: PNG/JPEG export requires Canvg.js");
+    if (!this._hasCanvg) {
+      this._warnError(
+        "Error svg-export: PNG/JPEG export requires Canvg. Install it via npm or include it via script tag."
+      );
       return;
     }
+
     imageType = imageType.toLowerCase().replace("jpg", "jpeg");
     if (imageType !== "png" && imageType !== "jpeg") {
       imageType = "png";
@@ -444,10 +473,10 @@ class SvgExport {
       if (!options) {
         options = {};
       }
-      options.scale = 10;
+      options.scale = 2;
     }
     this._setOptions(svgElement, options);
-    var svgString = this.setupSvg(svgElement, svg);
+    let svgString = this.setupSvg(svgElement, svg);
 
     if (imageType === "jpeg") {
       //change transparent background to white
@@ -462,14 +491,12 @@ class SvgExport {
           '"/>'
       );
     }
-    var canvas = new OffscreenCanvas(this._options.width, this._options.height);
-    const preset = presets.offscreen();
-    console.log(this._options.allowCrossOriginImages);
+    let canvas = new OffscreenCanvas(this._options.width, this._options.height);
+    const preset = this._presets.offscreen();
     preset.anonymousCrossOrigin = this._options.allowCrossOriginImages;
+    let ctx = canvas.getContext("2d");
 
-    var ctx = canvas.getContext("2d");
-    console.log(svgString);
-    var v = Canvg.fromString(ctx, svgString);
+    let v = this._canvg.fromString(ctx, svgString);
     v.start();
     v.ready().then(() => {
       const type = imageType === "jpeg" ? "image/jpeg" : "image/png";
@@ -479,9 +506,9 @@ class SvgExport {
         })
         .then((blob) => {
           const imgUrl = URL.createObjectURL(blob);
-          let img = new Image();
-          img.src = imgUrl;
-          document.getElementById("demo-canvas1").appendChild(img);
+          //let img = new Image();
+          //img.src = imgUrl;
+          //document.getElementById("demo-canvas1").appendChild(img);
           this.triggerDownload(imgUrl, svgName + "." + imageType, canvas);
         });
     });
@@ -507,7 +534,7 @@ class SvgExport {
         });
     }
     // -svg
-    SVGtoPDF(
+    this._svgToPdf(
       doc,
       svg,
       this._options.pdfOptions.pageLayout.margins.left,
@@ -542,17 +569,12 @@ class SvgExport {
   }
   downloadPdf(svg, svgName, options) {
     //check dependency and values
-    if (
-      typeof PDFDocument !== "function" ||
-      typeof SVGtoPDF !== "function" ||
-      typeof blobStream !== "function"
-    ) {
+    if (!this._hasPDF) {
       this._warnError(
-        "Error svg-export: PDF export requires PDFKit.js, blob-stream and SVG-to-PDFKit"
+        "Error svg-export: PDF export requires PDFKit, blob-stream and SVG-to-PDFKit."
       );
       return;
     }
-
     //get svg element
     const svgElement = this._getSvgElement(svg);
     if (!svgElement) {
@@ -562,17 +584,17 @@ class SvgExport {
       svgName = "chart";
     }
     this._setOptions(svgElement, options);
-    var svgCloned = this.setupSvg(svgElement, svg, false);
+    const svgCloned = this.setupSvg(svgElement, svg, false);
 
     //create PDF doc
-    var doc = new PDFDocument(this._options.pdfOptions.pageLayout);
-    var stream = doc.pipe(blobStream());
+    const doc = new this._pdfkit(this._options.pdfOptions.pageLayout);
+    const stream = doc.pipe(this._blobStream());
 
     // -custom images
-    var images = svgElement.getElementsByTagName("image");
-    var image_promises = [];
+    let images = svgElement.getElementsByTagName("image");
+    let image_promises = [];
     if (images) {
-      for (var image of images) {
+      for (let image of images) {
         if (
           (image.getAttribute("href") &&
             image.getAttribute("href").indexOf("data:") === -1) ||
@@ -587,14 +609,14 @@ class SvgExport {
     // -custom fonts
     Promise.all(image_promises).then(() => {
       if (this._options.pdfOptions.customFonts.length > 0) {
-        var font_promises = this.getCustomFonts(
+        let font_promises = this.getCustomFonts(
           this._options.pdfOptions.customFonts.map((d) => d.url)
         );
         Promise.all(font_promises).then((fonts) => {
           fonts.forEach((font, index) => {
-            var thisPdfOptions =
+            let thisPdfOptions =
               this._options.pdfOptions.customFonts[parseInt(index, 10)];
-            var fontStyledElements = svgCloned.querySelectorAll(
+            let fontStyledElements = svgCloned.querySelectorAll(
               '[style*="' + thisPdfOptions.fontName + '"]'
             );
             fontStyledElements.forEach((element) => {
@@ -624,7 +646,7 @@ class SvgExport {
     });
 
     stream.on("finish", () => {
-      var url = stream.toBlobURL("application/pdf");
+      let url = stream.toBlobURL("application/pdf");
       this.triggerDownload(url, svgName + ".pdf");
     });
   }
