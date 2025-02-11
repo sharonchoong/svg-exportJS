@@ -29,7 +29,8 @@
   "peerDependencies": {
     "canvg": "^4.0.1",
     "pdfkit": "^0.13.0",
-    "svg-to-pdfkit": "^0.1.8"
+    "svg-to-pdfkit": "^0.1.8",
+    "svg-text-to-path": "^2.0.2"
   },
   "peerDependenciesMeta": {
     "canvg": {
@@ -39,6 +40,9 @@
       "optional": true
     },
     "svg-to-pdfkit": {
+      "optional": true
+    },
+    "svg-text-to-path": {
       "optional": true
     }
   }

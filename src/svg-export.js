@@ -18,6 +18,7 @@ class SvgExport {
     this._svgToPdf = dependencies.svgToPdf;
     this._blobStream = dependencies.blobStream;
     this._presets = dependencies.presets;
+    this._textToPath = dependencies.textToPath;
 
     // Check available dependencies
     this._hasCanvg = typeof this._canvg !== "undefined";
@@ -25,6 +26,7 @@ class SvgExport {
       typeof this._pdfkit !== "undefined" &&
       typeof this._svgToPdf !== "undefined" &&
       typeof this._blobStream !== "undefined";
+    this._hasTextToPath = typeof this._textToPath !== "undefined";
   }
 
   // Optional method to set dependencies after construction
@@ -33,8 +35,11 @@ class SvgExport {
     this._pdfkit = dependencies.pdfkit;
     this._svgToPdf = dependencies.svgToPdf;
     this._blobStream = dependencies.blobStream;
+    this._textToPath = dependencies.textToPath;
 
     this._hasCanvg = typeof this._canvg !== "undefined";
+    this._hasTextToPath = typeof this._textToPath !== "undefined";
+
     this._hasPDF =
       typeof this._pdfkit !== "undefined" &&
       typeof this._svgToPdf !== "undefined" &&
@@ -139,6 +144,10 @@ class SvgExport {
       transparentBackgroundReplace: "white",
       allowCrossOriginImages: false,
       elementsToExclude: [],
+      convertTextToPath: false,
+      svgTextToPathSettings: {
+        fonts: [],
+      },
       pdfOptions: {
         customFonts: [],
         pageLayout: { margin: 50, margins: {} },
@@ -210,6 +219,12 @@ class SvgExport {
     }
     if (options && options.onDone && typeof options.onDone === "function") {
       this._options.onDone = options.onDone;
+    }
+    if (options && options.svgTextToPathSettings) {
+      this._options.svgTextToPathSettings = options.svgTextToPathSettings;
+    }
+    if (options && options.convertTextToPath) {
+      this._options.convertTextToPath = options.convertTextToPath;
     }
 
     this._setPdfOptions(options);
@@ -413,38 +428,52 @@ class SvgExport {
       svgName = "chart";
     }
 
+    
     this._setOptions(svgElement, options);
 
-    // -custom images
-    let images = svgElement.getElementsByTagName("image");
-    let image_promises = [];
-    if (images) {
-      for (let image of images) {
-        if (
-          (image.getAttribute("href") &&
-            image.getAttribute("href").indexOf("data:") === -1) ||
-          (image.getAttribute("xlink:href") &&
-            image.getAttribute("xlink:href").indexOf("data:") === -1)
-        ) {
-          image_promises.push(this.convertImageURLtoDataURI(image));
+    const processSvgAndDownload = () => {
+      // -custom images
+      const images = svgElement.getElementsByTagName("image");
+      const image_promises = [];
+      
+      if (images) {
+        for (let image of images) {
+          if (
+            (image.getAttribute("href") &&
+              image.getAttribute("href").indexOf("data:") === -1) ||
+            (image.getAttribute("xlink:href") &&
+              image.getAttribute("xlink:href").indexOf("data:") === -1)
+          ) {
+            image_promises.push(this.convertImageURLtoDataURI(image));
+          }
         }
       }
+
+      Promise.all(image_promises).then(() => {
+        //get svg string
+        let svgString = this.setupSvg(svgElement, svg);
+        
+        //add xml declaration
+        svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
+
+        //convert svg string to URI data scheme.
+        let url =
+          "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+
+        this.triggerDownload(url, svgName + ".svg");
+      });
+    };
+
+    if (options.convertTextToPath) {
+      const mysesion = new this._textToPath(
+        svgElement,
+        options.svgTextToPathSettings
+      );
+
+      mysesion.replaceAll().then(processSvgAndDownload);
+    } else {
+      processSvgAndDownload();
     }
-
-    // Use arrow function to preserve 'this' context
-    Promise.all(image_promises).then(() => {
-      //get svg string
-      let svgString = this.setupSvg(svgElement, svg);
-
-      //add xml declaration
-      svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
-
-      //convert svg string to URI data scheme.
-      let url =
-        "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
-
-      this.triggerDownload(url, svgName + ".svg");
-    });
   }
 
   downloadRaster(svg, svgName, options, imageType) {

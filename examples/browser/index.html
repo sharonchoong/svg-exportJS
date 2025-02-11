@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js"
         integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
     <script src="../../dist/svg-export.min.js"></script>
+    <script src="./svg-text-to-path-fontkit.js"></script>
     <style>
         .container {
             max-width: 800px;
@@ -26,6 +27,34 @@
             margin: 5px;
             padding: 8px 16px;
         }
+
+        @font-face {
+            font-family: "nowaymedium";
+            src: url("./fonts/noway-medium-webfont.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: "nowaybold";
+            src: url("./fonts/noway-bold-webfont.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: "nowaylight";
+            src: url("./fonts/noway-light-webfont.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: "nowayregular";
+            src: url("./fonts/noway-regular-webfont.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
     </style>
 </head>
 
@@ -33,11 +62,28 @@
     <div class="container">
         <h1>SVG Export Demo</h1>
 
-        <svg id="demo-svg" height="400" width="500px" viewBox="0 0 500 400" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <svg id="demo-svg" height="400" width="500px" viewBox="0 0 500 400" version="1.1"
+            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <title>g2423</title>
-            <desc>Created with Sketch.</desc>
-            <defs></defs>
-            
+            <defs>
+                <pattern x="0" y="0" width="42" height="32" patternUnits="userSpaceOnUse" id="pattern"
+                    viewBox="0 -32 42 32">
+                    <path fill="blue"
+                        d="M26,0c0-2.21,1.79-4,4-4c6.627,0,12-5.373,12-12s-5.373-12-12-12c-2.21,0-4-1.79-4-4h-2 c0,3.314,2.686,6,6,6c5.523,0,10,4.477,10,10S35.523-6,30-6c-3.314,0-6,2.686-6,6H26z M16,0c0-2.21-1.79-4-4-4 C5.373-4,0-9.373,0-16s5.373-12,12-12c2.21,0,4-1.79,4-4h2c0,3.314-2.686,6-6,6C6.477-26,2-21.523,2-16S6.477-6,12-6 c3.314,0,6,2.686,6,6H16z" />
+                </pattern>
+                <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="500" y1="50" x2="550" y2="100">
+                    <stop stop-color="red" offset="0" />
+                    <stop stop-color="yellow" offset="1" />
+                </linearGradient>
+            </defs>
+
+            <text x="40" y="40" fill="#cc0000" dy="1em" font-family="nowaybold">
+                <tspan>prueba bold</tspan>
+            </text>
+            <text x="40" y="90" font-family="nowayregular" font-size="32px">
+                <tspan>prueba regular</tspan>
+            </text>
+            <text x="40" y="130" font-family="nowaylight">prueba light</text>
 
             <g class="rects">
                 <rect x="300" y="40" width="40" height="40" fill="black" stroke="black"></rect>
@@ -48,16 +94,19 @@
                 <circle cx="200" cy="100" r="50" fill="#778899" stroke="blue" opacity="0.5"></circle>
                 <circle cx="400" cy="200" r="150" fill="transparent" stroke="currentColor" opacity="0.8"></circle>
             </g>
-            <text x="200" y="200" style="font-family: 'Segan', Arial;" font-size="20">Testing 123</text>
-            <text x="200" y="220" style="font-family: 'Segan', Arial;" font-size="10">Subtitle</text>
+            <text x="200" y="200" style="font-family: 'nowaylight', Arial;" font-size="20">Testing 123</text>
+            <text x="200" y="220" style="font-family: 'nowaylight', Arial;" font-size="10">Subtitle</text>
             <rect x="50" y="50" stroke="red" fill="url(#pattern)" width="100" height="100" />
             <rect x="500" y="50" stroke="red" fill="url(#gradient)" width="50" height="50" />
             <image href="samuel-pasteur-fosse-N0OOEpR1Lpo-unsplash.jpg" alt="test" x="50" y="250" height="100"
                 width="150" />
+
+
         </svg>
 
         <div class="buttons">
             <button onclick="exportSVG()">Export SVG</button>
+            <button onclick="exportSVG(true)">Export SVG withtext2Path</button>
             <button onclick="exportPNG()">Export PNG</button>
             <button onclick="exportJPEG()">Export JPEG</button>
             <button onclick="exportPDF()">Export PDF</button>
@@ -69,31 +118,40 @@
 
         import { Canvg, presets } from 'https://cdn.skypack.dev/canvg@^4.0.0';
 
-        
-        
+
+
 
         const exporter = new SvgExport({
             canvg: Canvg,
             presets: presets,
             pdfkit: PDFDocument,
             blobStream: blobStream,
-            svgToPdf: SVGtoPDF
+            svgToPdf: SVGtoPDF,
+            textToPath: window.SvgTextToPath
         });
         const svg = document.getElementById('demo-svg');
 
-        window.exportSVG = function() {
-            exporter.downloadSvg(svg, 'demo', { scale: 1, useCSS: false, allowCrossOriginImages: true });
+        window.exportSVG = function (text2Path = false) {
+            exporter.downloadSvg(svg, 'demo', {
+                scale: 1, useCSS: false, allowCrossOriginImages: true, convertTextToPath: text2Path, svgTextToPathSettings: {
+                    fonts: {
+                        nowaylight: [{ source: "/examples/browser/fonts/noway-light-webfont.ttf" }],
+                        nowayregular: [{ source: "/examples/browser/fonts/noway-regular-webfont.ttf" }],
+                        nowaymedium: [{ source: "/examples/browser/fonts/noway-medium-webfont.ttf" }],
+                        nowaybold: [{ source: "/examples/browser/fonts/noway-bold-webfont.woff" }],
+                    },
+                }
+            });
         };
-
-        window.exportPNG = function() {
+        window.exportPNG = function () {
             exporter.downloadPng(svg, 'demo', { scale: 1, useCSS: false });
         };
 
-        window.exportJPEG = function() {
+        window.exportJPEG = function () {
             exporter.downloadJpeg(svg, 'demo', { scale: 1, useCSS: false });
         };
 
-        window.exportPDF = function() {
+        window.exportPDF = function () {
             exporter.downloadPdf(svg, 'demo', { scale: 1, useCSS: false });
         };
 

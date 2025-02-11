@@ -219,10 +219,72 @@ Colors tested to work on all exported formats include CSS color names, HEX, RGB,
 
 Need to add SVG graphics to Office Word, Excel or Powerpoint presentations? [SVG files can be inserted as a picture](https://support.microsoft.com/en-us/office/edit-svg-images-in-microsoft-office-365-69f29d39-194a-4072-8c35-dbe5e7ea528c) for non-pixelated graphics in Office 2016 or later, including Office 365.
 
-## Roadmap
+### Text to Path Conversion
 
-- [ ] Open the generated file in a new window/tab instead of downloading the file 
-- [ ] Set up package.json and publish to npm (jsdom for Node?)
+To convert text elements to path elements (useful for ensuring text appears correctly regardless of font availability), you can use the text-to-path feature:
+
+#### Installation
+
+```bash
+npm install svg-text-to-path
+```
+
+#### Usage with NPM/ES Modules
+
+```javascript
+import SvgExport from 'svg-export';
+import Session from 'svg-text-to-path';
+
+const exporter = new SvgExport({
+    textToPath: Session
+});
+
+exporter.downloadSvg(mySvg, 'chart', {
+    convertTextToPath: true,
+    svgTextToPathSettings: {
+        fonts: {
+            // Font configurations https://github.com/paulzi/svg-text-to-path/blob/master/documentation.md
+            'MyFontFamily': [{ 
+                source: '/path/to/font.ttf'
+            }]
+        }
+    }
+});
+
+
+#### Usage with Script Tags
+
+```html
+<script src="path/to/svg-text-to-path.js"></script>
+<script>
+const exporter = new SvgExport({
+    textToPath: window.SvgTextToPath
+});
+
+exporter.downloadSvg(mySvg, 'chart', {
+    convertTextToPath: true,
+    svgTextToPathSettings: {
+        fonts: {
+            'MyFontFamily': [{ 
+                source: '/path/to/font.ttf'
+            }]
+        }
+    }
+});
+</script>
+```
+
+#### Text to Path Options
+
+- **convertTextToPath** (bool): _when true, converts text elements to path elements before export. Default is `false`_
+- **svgTextToPathSettings** (object): _configuration options for text-to-path conversion_
+  [text-to-path documentation](https://github.com/paulzi/svg-text-to-path/blob/master/documentation.md)
+    ```
+
+This feature is particularly useful when:
+- You need to ensure text appears exactly the same across different systems
+- Your SVG uses custom fonts that might not be available on the target system
+- You want to convert text to vector paths for better compatibility
 
 ## Not Supported
 Since `foreignObject` does not contain SVG, it is not supported.
