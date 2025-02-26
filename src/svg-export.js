@@ -137,6 +137,8 @@ class SvgExport {
       originalHeight: 100,
       originalMinXViewBox: 0,
       originalMinYViewBox: 0,
+      originalWidthViewbox: 100,
+      originalHeightViewbox: 100,
       width: 100,
       height: 100,
       scale: 1,
@@ -161,27 +163,36 @@ class SvgExport {
     };
 
     //original size
-    this._options.originalHeight =
-      svgElement.style.getPropertyValue("height").indexOf("%") !== -1 ||
-      (svgElement.getAttribute("height") &&
-        svgElement.getAttribute("height").indexOf("%") !== -1)
-        ? svgElement.getBBox().height * this._options.scale
-        : svgElement.getBoundingClientRect().height * this._options.scale;
-    this._options.originalWidth =
-      svgElement.style.getPropertyValue("width").indexOf("%") !== -1 ||
-      (svgElement.getAttribute("width") &&
-        svgElement.getAttribute("width").indexOf("%") !== -1)
-        ? svgElement.getBBox().width * this._options.scale
-        : svgElement.getBoundingClientRect().width * this._options.scale;
+    if (options && options.originalHeight && options.originalWidth) {
+      this._options.originalHeight = options.originalHeight;
+      this._options.originalWidth = options.originalWidth;
+    } else {
+      this._options.originalHeight =
+        svgElement.style.getPropertyValue("height").indexOf("%") !== -1 ||
+        (svgElement.getAttribute("height") &&
+          svgElement.getAttribute("height").indexOf("%") !== -1)
+          ? svgElement.getBBox().height
+          : svgElement.getBoundingClientRect().height;
+      this._options.originalWidth =
+        svgElement.style.getPropertyValue("width").indexOf("%") !== -1 ||
+        (svgElement.getAttribute("width") &&
+          svgElement.getAttribute("width").indexOf("%") !== -1)
+          ? svgElement.getBBox().width
+          : svgElement.getBoundingClientRect().width;
+    }
 
     const viewBox = svgElement.getAttribute("viewBox");
     if (viewBox) {
       const values = viewBox.split(/[\s,]+/); // Split on one or more spaces or commas
       this._options.originalMinXViewBox = values[0] ?? 0;
       this._options.originalMinYViewBox = values[1] ?? 0;
+      this._options.originalWidthViewbox = values[2] ?? 100;
+      this._options.originalHeightViewbox = values[3] ?? 100;
     } else {
       this._options.originalMinXViewBox = 0;
       this._options.originalMinYViewBox = 0;
+      this._options.originalWidthViewbox = NaN;
+      this._options.originalHeightViewbox = NaN;
     }
 
     //custom options
@@ -296,9 +307,13 @@ class SvgExport {
         " " +
         this._options.originalMinYViewBox +
         " " +
-        this._options.originalWidth +
+        (isNaN(this._options.originalWidthViewbox)
+          ? this._options.originalWidth
+          : this._options.originalWidthViewbox) +
         " " +
-        this._options.originalHeight
+        (isNaN(this._options.originalHeightViewbox)
+          ? this._options.originalHeight
+          : this._options.originalHeightViewbox)
     );
 
     let elements = document.getElementsByClassName("tempdiv-svg-exportJS");
@@ -420,22 +435,29 @@ class SvgExport {
   }
 
   downloadSvg(svg, svgName, options) {
-    const svgElement = this._getSvgElement(svg);
-    if (!svgElement) {
-      return;
-    }
     if (svgName == null) {
       svgName = "chart";
     }
-
-    
-    this._setOptions(svgElement, options);
+    if (options.convertTextToPath) {
+      const mysesion = new this._textToPath(svg, options.svgTextToPathSettings);
+      mysesion.replaceAll().then(() => {
+        processSvgAndDownload();
+        mysesion.destroy();
+      });
+    } else {
+      processSvgAndDownload();
+    }
 
     const processSvgAndDownload = () => {
+      const svgElement = this._getSvgElement(svg);
+      if (!svgElement) {
+        return;
+      }
+      this._setOptions(svgElement, options);
       // -custom images
       const images = svgElement.getElementsByTagName("image");
       const image_promises = [];
-      
+
       if (images) {
         for (let image of images) {
           if (
@@ -452,7 +474,7 @@ class SvgExport {
       Promise.all(image_promises).then(() => {
         //get svg string
         let svgString = this.setupSvg(svgElement, svg);
-        
+
         //add xml declaration
         svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
 
@@ -463,20 +485,9 @@ class SvgExport {
         this.triggerDownload(url, svgName + ".svg");
       });
     };
-
-    if (options.convertTextToPath) {
-      const mysesion = new this._textToPath(
-        svgElement,
-        options.svgTextToPathSettings
-      );
-
-      mysesion.replaceAll().then(processSvgAndDownload);
-    } else {
-      processSvgAndDownload();
-    }
   }
 
-  downloadRaster(svg, svgName, options, imageType) {
+  async downloadRaster(svg, svgName, options, imageType) {
     if (!this._hasCanvg) {
       this._warnError(
         "Error svg-export: PNG/JPEG export requires Canvg. Install it via npm or include it via script tag."
@@ -495,15 +506,12 @@ class SvgExport {
     if (svgName == null) {
       svgName = "chart";
     }
-
     //get canvas and svg element.
 
-    if (!(options && (options.width || options.height))) {
-      if (!options) {
-        options = {};
-      }
-      options.scale = 2;
+    if (!options) {
+      options = {};
     }
+
     this._setOptions(svgElement, options);
     let svgString = this.setupSvg(svgElement, svg);
 
@@ -520,13 +528,15 @@ class SvgExport {
           '"/>'
       );
     }
+    svgString = this.removeBreakingStyles(svgString);
     let canvas = new OffscreenCanvas(this._options.width, this._options.height);
     const preset = this._presets.offscreen();
     preset.anonymousCrossOrigin = this._options.allowCrossOriginImages;
     let ctx = canvas.getContext("2d");
 
-    let v = this._canvg.fromString(ctx, svgString);
+    let v = this._canvg.fromString(ctx, svgString, preset);
     v.start();
+    // await new Promise((resolve) => setTimeout(resolve, 500));
     v.ready().then(() => {
       const type = imageType === "jpeg" ? "image/jpeg" : "image/png";
       canvas
@@ -537,11 +547,18 @@ class SvgExport {
           const imgUrl = URL.createObjectURL(blob);
           //let img = new Image();
           //img.src = imgUrl;
-          //document.getElementById("demo-canvas1").appendChild(img);
+          //document.getElementById("teleports").appendChild(img);
           this.triggerDownload(imgUrl, svgName + "." + imageType, canvas);
         });
     });
   }
+
+  removeBreakingStyles(domString) {
+    // I found that "mask: none; mask-type: luminance;" breaks canvavg conversion
+    // so I need to remove it
+    return domString.replace(/mask: none; mask-type: luminance;/g, "");
+  }
+
   downloadPng(svg, svgName, options) {
     this.downloadRaster(svg, svgName, options, "png");
   }
@@ -691,3 +708,4 @@ if (typeof exports === "object" && typeof module !== "undefined") {
 } else {
   (typeof globalThis !== "undefined" ? globalThis : self).SvgExport = SvgExport;
 }
+export default SvgExport;
