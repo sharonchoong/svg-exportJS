@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <!-- <script src="../dist/umd/svg-export.umd.standalone.min.js"></script> -->
+         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/js/pdfkit.standalone.js" integrity="sha256-41qk5dewLKulpzhP3H6G7mY+5q+vzxMaxolsOGmZD/8=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/blob-stream-browserify@0.1.3/index.js" integrity="sha256-bFrIR3MiIsKhM2EDZdTJ3eY7iSluq1W7e6dNVwScEYw=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
-        <script src="svg-export.min.js"></script>
+        <script src="../dist/umd/svg-export.umd.min.js"></script>
+
         <style>
             text {
                 fill: blue;
@@ -47,7 +50,7 @@
                     <text x="200" y="220" style="font-family: 'Segan', Arial;" font-size="10">Subtitle</text>
                     <rect x="50" y="50" stroke="red" fill="url(#pattern)" width="100" height="100"/>
                     <rect x="500" y="50" stroke="red" fill="url(#gradient)" width="50" height="50"/>
-                    <image href="samuel-pasteur-fosse-N0OOEpR1Lpo-unsplash.jpg" alt="test" x="50" y="250" height="100" width="150"/>
+                    <image href="images/samuel-pasteur-fosse-N0OOEpR1Lpo-unsplash.jpg" alt="test" x="50" y="250" height="100" width="150"/>
                 </svg>
             </div>
         </div>
@@ -62,23 +65,25 @@
         <p>Note: for the "PNG (svg string)" export, the red circle does not render as red because the serialized string does not contain the "color: red" style for "currentColor", which is actually found on the SVG's container</p>
         <p>Note: for the "SVG (filtered)" export, circles and the "Subtitle" text with "font-size: 10" are filtered out</p>
     </body>
-    <script>
-        document.querySelector("#btn_export_svg").onclick = function(){
-            svgExport.downloadSvg(document.querySelector("#mysvg"), "Circles and rectangles chart");
+    <script type="module">
+        // import * as svgExport from "../dist/esm/svg-export.esm.min.js";
+
+        document.querySelector("#btn_export_svg").onclick = async () => {
+            await svgExport.downloadSvg(document.querySelector("#mysvg"), "Circles and rectangles chart");
         };
-        document.querySelector("#btn_export_jpeg").onclick = function(){
-            svgExport.downloadJpeg(document.querySelector("#mysvg"), "Circles and rectangles chart");
+        document.querySelector("#btn_export_jpeg").onclick = async () => {
+            await svgExport.downloadJpeg(document.querySelector("#mysvg"), "Circles and rectangles chart");
         };
-        document.querySelector("#btn_export_png").onclick = function(){
-            svgExport.downloadPng(document.querySelector("#mysvg"), "Circles and rectangles chart", { width: 5000, height: 5000 });
+        document.querySelector("#btn_export_png").onclick = async () => {
+            await svgExport.downloadPng(document.querySelector("#mysvg"), "Circles and rectangles chart", { width: 5000, height: 5000 });
         };
-        document.querySelector("#btn_export_png_string").onclick = function(){
-            var svg_string = document.querySelector("#mysvg").outerHTML;
-            svg_string = svg_string.replace(">", ">" + document.getElementsByTagName("style")[0].outerHTML);
-            svgExport.downloadPng(svg_string, "Circles and rectangles chart");
+        document.querySelector("#btn_export_png_string").onclick = async () => {
+            const svg_string = document.querySelector("#mysvg").outerHTML
+                .replace(">", ">" + document.getElementsByTagName("style")[0].outerHTML);
+            await svgExport.downloadPng(svg_string, "Circles and rectangles chart");
         };
-        document.querySelector("#btn_export_pdf").onclick = function(){
-            svgExport.downloadPdf(document.querySelector("#mysvg"), "Circles and rectangles chart", 
+        document.querySelector("#btn_export_pdf").onclick = async () => {
+            await svgExport.downloadPdf(document.querySelector("#mysvg"), "Circles and rectangles chart", 
             { 
                 pdfOptions: {
                     chartCaption: "Hi there.  This is a test chart caption. ", 
@@ -87,8 +92,8 @@
                 } 
             });
         };
-        document.querySelector("#btn_export_svg_filters").onclick = function(){
-            svgExport.downloadSvg(document.querySelector("#mysvg"), "Only rectangles chart", 
+        document.querySelector("#btn_export_svg_filters").onclick = async () => {
+            await svgExport.downloadSvg(document.querySelector("#mysvg"), "Only rectangles chart", 
             {
                 excludeByCSSSelector: "[font-size='10'], circle"
             });

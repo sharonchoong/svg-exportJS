@@ -14,36 +14,88 @@ This library features:
 - Exporting SVGs that are hidden on the DOM (`display: none`, SVGs in hidden modals, dropdowns or tabs, etc.) 
 - Exporting SVGs containing images (`<image>` tag)
 
-Demo available [here](https://sharonchoong.github.io/svg-exportJS/index.html).
+## Demo
 
-## Getting Started
+Try it out [here](https://sharonchoong.github.io/svg-exportJS/index.html).
 
-### Prerequisites
-
-- Any of the following browsers: Chrome 38.0+, Edge 18.0+, Firefox 20.0+, Safari 10.1+, Opera 25+
+## Dependencies
+svg-exportJS has the following optional third-party dependencies:
 - [Canvg](https://github.com/canvg/canvg) (if you need JPEG/PNG export)
-  ```html
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  ```
 - [PDFKit](https://github.com/foliojs/pdfkit), [blob-stream](https://github.com/devongovett/blob-stream) and [SVG-to-PDFKit](https://github.com/alafr/SVG-to-PDFKit) (if you need PDF export). 
+
+Without the above dependencies, this library may only support SVG file exports. 
+
+Note that if you are using NPM to manage package installation and would like to use PDFKit for the browser, you may need to [perform some additional steps](https://github.com/foliojs/pdfkit/wiki/How-to-compile-standalone-PDFKit-for-use-in-the-browser) in addition to `npm install`.
+
+## Getting started
+
+svg-exportJS is offered as a UMD or an ESM module, available in the `dist` folder in this repository, and as an NPM package.
+
+### UMD
+
+The UMD module is available from this repository (see the `dist/umd` folder), or from various CDNs such as jsdelivr and unpkg.
+
+Two versions are available: 
+- The *main* version is lightweight and requires installing dependencies as needed. 
+- The *standalone* version already pre-installs all dependencies packaged with the library for convenience, at the expense of being memory-heavy.
+
+#### Example 1: main version
+
+Place the following scripts within the `<head>` tag in your html files (place dependencies first).
   ```html
+  <!-- Optional dependency for JPEG and PNG exports -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Optional dependencies for PDF exports -->
   <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/js/pdfkit.standalone.js" integrity="sha256-41qk5dewLKulpzhP3H6G7mY+5q+vzxMaxolsOGmZD/8=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/blob-stream-browserify@0.1.3/index.js" integrity="sha256-bFrIR3MiIsKhM2EDZdTJ3eY7iSluq1W7e6dNVwScEYw=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
+
+  <!-- svg-exportJS library -->
+  <script src="https://sharonchoong.github.io/svg-exportJS/dist/umd/svg-export.umd.min.js"></script>
   ```
-Please note that the CDNs above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above.
+Please note that the CDNs of the dependencies above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above.
 
-### Installation
 
-Either download the plugin and save it in your project, or use script-tags in your html files using the hosted url.
+#### Example 2: standalone version
 
-- Download the plugin `svg-export.min.js` from this repo, and add it to your project.
-- Add the plugin using the file hosted on Github Pages. Place the script within the `<head>` tag in your html files (place prerequisites first):
+Place the following script within the `<head>` tag in your html files.
   ```html
-  <!-- svg-exportJS prerequisite: canvg -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.9/umd.js" integrity="sha512-Wu9XXg78PiNE0DI4Z80lFKlEpLq7yGjquc0I35Nz+sYmSs4/oNHaSW8ACStXBoXciqwTLnSINqToeWP3iNDGmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- svg-exportJS plugin -->
-  <script src="https://sharonchoong.github.io/svg-exportJS/svg-export.min.js"></script>
+  <!-- svg-exportJS library -->
+  <script src="https://sharonchoong.github.io/svg-exportJS/dist/umd/svg-export.umd.standalone.min.js"></script>
+  ```
+
+  That's it!
+
+### ESM
+
+The ESM module is available from the NPM package manager, from this repository, or from various CDNs such as jsdelivr and unpkg. 
+
+Make sure to also install third-party dependencies as needed (see the *Dependencies* section above). The ESM module is not pre-packaged with the optional third-party dependencies, so as to remain as lightweight as possible for various use cases. 
+
+#### Example 1: from NPM
+  ```
+  npm install canvg
+  npm install svg-exportJS
+  ```
+
+Then in your JS script:
+  ```javascript
+  import * as svgExport from "svg-exportjs";
+  
+  // or
+
+  import { downloadSvg, downloadPng, downloadJpeg } from "svg-exportjs";
+  ```
+
+#### Example 2: from this repository
+Download the library as a file from the `dist/esm` folder in this repository and save it to your project, as well as any dependencies required. Then, import the module in your JS script.
+  ```javascript
+  import * as svgExport from "path/to/the/file/svg-export.esm.min.js";
+  
+  // or
+
+  import { downloadSvg, downloadPng, downloadJpeg, downloadPdf } from "path/to/the/file/svg-export.esm.min.js";
   ```
 
 ## Usage
@@ -57,17 +109,17 @@ Given the `<svg>` element:
 In Javascript:
 
 ```javascript
-svgExport.downloadSvg(
+await svgExport.downloadSvg(
   document.getElementById("mysvg"), // SVG DOM Element object to be exported. Alternatively, a string of the serialized SVG can be passed
   "chart title name", // chart title: file name of exported image
   { width: 200, height: 200 } // options (optional, please see below for a list of option properties)
 );
-svgExport.downloadPng("<svg id=\"mysvg\"></svg>", "chart title name", {
+await svgExport.downloadPng("<svg id=\"mysvg\"></svg>", "chart title name", {
   width: 200,
   height: 200,
 });
-svgExport.downloadJpeg(svgElementObject, "chart title name");
-svgExport.downloadPdf(svgString, "chart title name");
+await svgExport.downloadJpeg(svgElementObject, "chart title name");
+await svgExport.downloadPdf(svgString, "chart title name");
 ```
 
 See `index.html` for an example of how to use.
@@ -81,7 +133,6 @@ See `index.html` for an example of how to use.
 - **excludeByCSSSelector** (string): _e.g. `[stroke='red'], [stroke='green'], [display='none'], .text-muted`. Elements matching the specified [CSS selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors) will not be included in the generated file. This can be used to remove unwanted/unsupported elements of the SVG from the exported file, or to optimize performance for large SVGs. Please read **Optimizing for large SVGs** and **Not Supported** below for more detail._
 - **transparentBackgroundReplace** (string): _the color to be used to replace a transparent background in JPEG format export. Default is `white`_
 - **allowCrossOriginImages** (bool): _If the SVG contains images, this option permits the use of images from foreign origins. Defaults to `false`. Please read **Images within SVG** below for more detail._
-- **onDone** (function): _an optional callback function that will be called after the file export has completed._
 - **pdfOptions**
   - **pageLayout** (object): _e.g. `{ margin: 50, layout: "landscape" }`. This is provided to PDFKit's `addPage`. When the options **width** and **height** are not specified, a minimum size of 300x300 is used for the PDF page size; otherwise the page size wraps around the SVG size. Please see the [PDFKit documentation](https://pdfkit.org/docs/getting_started.html#adding_pages) for more info_
   - **addTitleToPage** (bool): _Default is `true`_
@@ -112,8 +163,9 @@ Need to add SVG graphics to Office Word, Excel or Powerpoint presentations? [SVG
 
 ## Roadmap
 
+- [x] Set up package.json and publish to npm
+- [x] Emit TypeScript types
 - [ ] Open the generated file in a new window/tab instead of downloading the file 
-- [ ] Set up package.json and publish to npm (jsdom for Node?)
 
 ## Not Supported
 Since `foreignObject` does not contain SVG, it is not supported.
