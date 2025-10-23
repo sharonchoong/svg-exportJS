@@ -52,7 +52,7 @@ Place the following scripts within the `<head>` tag in your html files (place de
   <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
 
   <!-- svg-exportJS library -->
-  <script src="https://sharonchoong.github.io/svg-exportJS/dist/umd/svg-export.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/sharonchoong/svg-exportJS@master/dist/umd/svg-export.umd.min.js"></script>
   ```
 Please note that the CDNs of the dependencies above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above.
 
@@ -62,7 +62,7 @@ Please note that the CDNs of the dependencies above may not be the most up-to-da
 Place the following script within the `<head>` tag in your html files.
   ```html
   <!-- svg-exportJS library -->
-  <script src="https://sharonchoong.github.io/svg-exportJS/dist/umd/svg-export.umd.standalone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/sharonchoong/svg-exportJS@master/dist/umd/svg-export.umd.standalone.min.js"></script>
   ```
 
   That's it!
@@ -76,7 +76,7 @@ Make sure to also install third-party dependencies as needed (see the *Dependenc
 #### Example 1: from NPM
   ```
   npm install canvg
-  npm install svg-exportJS
+  npm install svg-exportjs
   ```
 
 Then in your JS script:
