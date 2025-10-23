@@ -76,16 +76,16 @@ Make sure to also install third-party dependencies as needed (see the *Dependenc
 #### Example 1: from NPM
   ```
   npm install canvg
-  npm install svg-exportjs
+  npm install svg-exportjs-browser
   ```
 
 Then in your JS script:
   ```javascript
-  import * as svgExport from "svg-exportjs";
+  import * as svgExport from "svg-exportjs-browser";
   
   // or
 
-  import { downloadSvg, downloadPng, downloadJpeg } from "svg-exportjs";
+  import { downloadSvg, downloadPng, downloadJpeg } from "svg-exportjs-browser";
   ```
 
 #### Example 2: from this repository
