@@ -1,5 +1,11 @@
 import { warnError } from "./warnError";
 
+/**
+ * Attempt to import optional third-party dependency dynamically for UMD module, and show an error in the console if that fails.
+ * @param packageName 
+ * @param type 
+ * @returns 
+ */
 export async function importDependencyInternal(packageName: string, type: string): Promise<any> {
     try {
         let module;
@@ -11,13 +17,13 @@ export async function importDependencyInternal(packageName: string, type: string
                 }
                 break;
             case "pdfkit":
-                module = (window as any)?.PDFDocument ?? (await import("pdfkit")).default;
+                module =  "PDFDocument" in window ? window.PDFDocument : (await import("pdfkit")).default;
                 break;
             case "svg-to-pdfkit":
-                module = (window as any)?.SVGtoPDF ?? (await import("svg-to-pdfkit")).default;
+                module = "SVGtoPDF" in window ? window.SVGtoPDF : (await import("svg-to-pdfkit")).default;
                 break;
             case "blob-stream":
-                module = (window as any)?.blobStream ?? (await import("blob-stream")).default;
+                module = "blobStream" in window ? window.blobStream : (await import("blob-stream")).default;
                 break;
             default:
                 break;

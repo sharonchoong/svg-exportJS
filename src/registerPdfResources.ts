@@ -1,7 +1,11 @@
 // the fs here is not node fs but the provided virtual one
 import fs from "pdfkit/js/virtual-fs";
 
-function registerAFMFonts(ctx) {
+/**
+ * Registers fonts for PDFKit. Required for standalone packaging.
+ * @param ctx 
+ */
+function registerAFMFonts(ctx: __WebpackModuleApi.RequireContext): void {
   ctx.keys().forEach(key => {
     const match = key.match(/(?:.\/)?([^\/]*)/);
     if (match) {

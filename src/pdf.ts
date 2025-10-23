@@ -10,7 +10,7 @@ import { InternalOptions, SVGExportOptions } from "./interfaces";
  * @param options export options
  * @returns a Promise that can be awaited until the file export completes
  */
-export async function downloadPdf(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions) {
+export async function downloadPdf(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions): Promise<void> {
     //import dependency and check values
     const PDFDocument = await importDependency("pdfkit", "pdf");
     const BlobStream = await importDependency("blob-stream", "pdf");
@@ -18,9 +18,7 @@ export async function downloadPdf(svg: SVGGraphicsElement | string, svgName: str
     //get svg element
     const svgElement = getSvgElement(svg);
     if (!svgElement) { return; }
-    if (svgName == null) {
-        svgName = "chart";
-    }
+    const _svgName = svgName ?? "chart";
     const _options = initOptions(svgElement, options);
     const svgCloned = setupSvg(svgElement, svg, _options, true);
 
@@ -33,8 +31,8 @@ export async function downloadPdf(svg: SVGGraphicsElement | string, svgName: str
     const image_promises: Promise<void>[] = [];
     if (images) {
         for (const image of Array.from(images)) {
-            if ((image.getAttribute("href") && image.getAttribute("href")?.indexOf("data:") === -1)
-                || (image.getAttribute("xlink:href") && image.getAttribute("xlink:href")?.indexOf("data:") === -1)) {
+            if ((image.getAttribute("href") && !image.getAttribute("href")?.includes("data:"))
+                || (image.getAttribute("xlink:href") && !image.getAttribute("xlink:href")?.includes("data:"))) {
                 image_promises.push(convertImageURLtoDataURI(image, _options));
             }
         }
@@ -47,14 +45,15 @@ export async function downloadPdf(svg: SVGGraphicsElement | string, svgName: str
         const fonts = await Promise.all(font_promises);
         fonts.forEach((font, index: number) => {
             const thisPdfOptions = _options.pdfOptions.customFonts[index];
-            //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
+            //this ensures that the font fallbacks are removed from inline CSS that contain custom fonts, 
+            // as fonts with fallbacks are not parsed correctly by SVG-to-PDFKit
             const fontStyledElements = svgCloned.querySelectorAll("[style*=\"" + thisPdfOptions.fontName + "\"]");
             fontStyledElements.forEach((element) => {
                 if (element instanceof HTMLElement) {
                     element.style.fontFamily = thisPdfOptions.fontName;
                 }
             });
-            if ((thisPdfOptions.url.indexOf(".ttc") !== -1 || thisPdfOptions.url.indexOf(".dfont") !== -1) && thisPdfOptions.styleName) {
+            if ((thisPdfOptions.url.includes(".ttc") || thisPdfOptions.url.includes(".dfont")) && thisPdfOptions.styleName) {
                 doc.registerFont(thisPdfOptions.fontName, font, thisPdfOptions.styleName);
             }
             else {
@@ -63,20 +62,27 @@ export async function downloadPdf(svg: SVGGraphicsElement | string, svgName: str
         });
     }
 
-    await fillPDFDoc(doc, svgName, svgCloned, _options);
+    await fillPDFDoc(doc, _svgName, svgCloned, _options);
     doc.end();
 
     await new Promise<void>(resolve => {
         stream.on("finish", () => {
             const url = stream.toBlobURL("application/pdf");
-            triggerDownload(url, svgName + ".pdf");
+            triggerDownload(url, _svgName + ".pdf");
             resolve();
         });
     })
     
 }
 
-async function fillPDFDoc(doc, svgName: string, svg: SVGGraphicsElement, options: InternalOptions) {
+/**
+ * Fill the given PDF document with the svg content
+ * @param doc 
+ * @param svgName 
+ * @param svg 
+ * @param options 
+ */
+async function fillPDFDoc(doc, svgName: string, svg: SVGGraphicsElement, options: InternalOptions): Promise<void> {
     // -title
     if (options.pdfOptions.addTitleToPage) {
         doc.font(options.pdfOptions.pdfTextFontFamily)
@@ -84,7 +90,8 @@ async function fillPDFDoc(doc, svgName: string, svg: SVGGraphicsElement, options
         if (Array.isArray(options.pdfOptions.pageLayout.size)) {
             doc.text(svgName,
                 {
-                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left - options.pdfOptions.pageLayout.margins.right
+                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left 
+                        - options.pdfOptions.pageLayout.margins.right
                 });
         }
     }
@@ -99,9 +106,11 @@ async function fillPDFDoc(doc, svgName: string, svg: SVGGraphicsElement, options
             .fontSize(options.pdfOptions.pdfCaptionFontSize)
         if (Array.isArray(options.pdfOptions.pageLayout.size)) {
             doc.text(options.pdfOptions.chartCaption, options.pdfOptions.pageLayout.margins.left,
-                options.pdfOptions.pageLayout.size[1] - options.pdfOptions.pageLayout.margins.bottom - options.pdfOptions.pdfCaptionFontSize * 4,
+                options.pdfOptions.pageLayout.size[1] - options.pdfOptions.pageLayout.margins.bottom 
+                    - options.pdfOptions.pdfCaptionFontSize * 4,
                 {
-                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left - options.pdfOptions.pageLayout.margins.right
+                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left 
+                        - options.pdfOptions.pageLayout.margins.right
                 });
         } 
     }

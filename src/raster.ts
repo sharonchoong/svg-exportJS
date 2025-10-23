@@ -10,8 +10,8 @@ import { SVGExportOptions } from "./interfaces";
  * @param options export options
  * @returns a Promise that can be awaited until the file export completes
  */
-export async function downloadPng(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions) {
-    return downloadRaster(svg, svgName, "png", options);
+export async function downloadPng(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions): Promise<void> {
+    return downloadRaster(svg, svgName, "png", options ?? {});
 }
 
 /**
@@ -21,28 +21,29 @@ export async function downloadPng(svg: SVGGraphicsElement | string, svgName: str
  * @param options export options
  * @returns a Promise that can be awaited until the file export completes
  */
-export async function downloadJpeg(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions) {
-    return downloadRaster(svg, svgName, "jpeg", options);
+export async function downloadJpeg(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions): Promise<void> {
+    return downloadRaster(svg, svgName, "jpeg", options ?? {});
 }
 
-async function downloadRaster(svg: SVGGraphicsElement | string, svgName: string, imageType: "png" | "jpeg", options?: SVGExportOptions) {
+/**
+ * Downloads the SVG element in jpeg or png file format.
+ * @param svg 
+ * @param svgName 
+ * @param imageType 
+ * @param options 
+ * @returns 
+ */
+async function downloadRaster(svg: SVGGraphicsElement | string, svgName: string, 
+        imageType: "png" | "jpeg", options: SVGExportOptions): Promise<void> {
     //import dependency and check values
     const canvg = await importDependency("canvg", imageType);
-    if (imageType !== "png" && imageType !== "jpeg") {
-        imageType = "png";
-    }
     const svgElement = getSvgElement(svg);
     if (!svgElement) { return; }
-    if (svgName == null) {
-        svgName = "chart";
-    }
+    const _svgName = svgName ?? "chart";
 
     //get canvas and svg element.
     const canvas = document.createElement("canvas");
     if (!(options && (options.width || options.height))) {
-        if (!options) {
-            options = {};
-        }
         options.scale = 10;
     }
     
@@ -51,14 +52,15 @@ async function downloadRaster(svg: SVGGraphicsElement | string, svgName: string,
 
     if (imageType === "jpeg") {
         //change transparent background to white
-        svgString = svgString.replace(">", "><rect x=\"0\" y=\"0\" width=\"" + _options.width + "\" height=\"" + _options.height
+        svgString = svgString.replace(">", "><rect x=\"0\" y=\"0\" width=\"" 
+            + _options.width + "\" height=\"" + _options.height
             + "\" fill=\"" + _options.transparentBackgroundReplace + "\"/>");
     }
 
-    const ctx = canvas!.getContext("2d");
+    const ctx = canvas.getContext("2d");
     const v = canvg.Canvg.fromString(ctx, svgString, { anonymousCrossOrigin: _options.allowCrossOriginImages });
     v.start();
     await v.ready();
     const image = canvas.toDataURL("image/" + imageType);
-    triggerDownload(image, svgName + "." + imageType, canvas);
+    triggerDownload(image, _svgName + "." + imageType, canvas);
 }

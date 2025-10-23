@@ -4,18 +4,23 @@ export interface SVGExportOptions {
     /** height of the resulting image exported, in pixels. Default is the SVG's height on the DOM */
     height?: number;
     /** a multiple by which the SVG can be increased or decreased in size.
-     * For PNG and JPEG exports, if width, height and scale are not specified, scale is set to `10` for a 10x enlargement to ensure that a higher resolution image is produced.
+     * For PNG and JPEG exports, if width, height and scale are not specified,
+     * scale is set to `10` for a 10x enlargement to ensure that a higher resolution image is produced.
      * Otherwise, the default scale is `1` */
     scale?: number;
-    /** if SVG styles are specified in stylesheet externally rather than inline, setting `true` will add references to such styles from the styles computed by the browser.
-     * If `useCSS` is `false`, `currentColor` will be changed to `black`. This setting only applies if the SVG is passed as a DOM Element object, not as a string.
+    /** if SVG styles are specified in stylesheet externally rather than inline,
+     *  setting `true` will add references to such styles from the styles computed by the browser.
+     * If `useCSS` is `false`, `currentColor` will be changed to `black`.
+     * This setting only applies if the SVG is passed as a DOM Element object, not as a string.
      * Set this to `false` whenever possible to optimize performance.
-     * When set to `true`, all elements in the SVG are iterated to obtain their computed styles, which can be costly for large SVGs. Default is `true` */
+     * When set to `true`, all elements in the SVG are iterated to obtain their computed styles,
+     * which can be costly for large SVGs. Default is `true` */
     useCSS?: boolean;
     /**
      * @example e.g. `[stroke='red'], [stroke='green'], [display='none'], .text-muted`.
      * Elements matching the specified CSS selector will not be included in the generated file.
-     * This can be used to remove unwanted/unsupported elements of the SVG from the exported file, or to optimize performance for large SVGs. */
+     * This can be used to remove unwanted/unsupported elements of the SVG from the exported file,
+     * or to optimize performance for large SVGs. */
     excludeByCSSSelector?: string;
     /** color to be used to replace a transparent background in JPEG format export. Default is `white` */
     transparentBackgroundReplace?: string;
@@ -26,16 +31,19 @@ export interface SVGExportOptions {
 }
 export interface InternalPDFOptions {
     /** Optional argument for custom fonts. e.g. `[{ fontName: 'FakeFont', url: 'fonts/FakeFont.ttf'}]`.
-     * Each object must have two properties: `fontName` for the font name that appears in the CSS/SVG, and `url` for the URL of the custom font file to be used in the PDF.
-     * A third property `styleName` specifying the style name to be used can be specified for multi-collection font files (.ttc and .dfont files) */
+     * Each object must have two properties: `fontName` for the font name that appears in the CSS/SVG,
+     * and `url` for the URL of the custom font file to be used in the PDF.
+     * A third property `styleName` specifying the style name to be used can be specified
+     * for multi-collection font files (.ttc and .dfont files) */
     customFonts: PDFKitCustomFont[];
     /** This is provided to PDFKit's `addPage`. Please see the PDFKit documentation for more info */
-    pageLayout: InternalPDFPageLayout;
+    pageLayout: InternalPDFPageLayoutMargins;
     /** Default is `true` */
     addTitleToPage: boolean;
     /** caption to appear at the bottom of the chart in the PDF. Default is no caption */
     chartCaption: string;
-    /** Font family of title and caption (if applicable) in PDF. See the PDFKit documentation for a list of available fonts. Default is `Helvetica` */
+    /** Font family of title and caption (if applicable) in PDF. See the PDFKit documentation for a list of available fonts.
+     * Default is `Helvetica` */
     pdfTextFontFamily: string;
     /** Default is `20` */
     pdfTitleFontSize: number;
@@ -64,8 +72,12 @@ interface PDFKitCustomFont {
     url: string;
     styleName?: string;
 }
-interface InternalPDFPageLayout {
-    margin?: number;
+export interface InternalPDFPageLayoutMargin {
+    margin: number;
+    layout?: "portrait" | "landscape";
+    size?: [number, number] | string;
+}
+export interface InternalPDFPageLayoutMargins {
     margins: {
         top: number;
         bottom: number;
@@ -73,8 +85,8 @@ interface InternalPDFPageLayout {
         right: number;
     };
     layout?: "portrait" | "landscape";
-    size: [number, number] | string;
+    size?: [number, number] | string;
 }
 /** This is provided to PDFKit's `addPage`. Please see the PDFKit documentation for more info */
-type PDFKitPageLayout = Partial<InternalPDFPageLayout>;
+type PDFKitPageLayout = Partial<InternalPDFPageLayoutMargin | InternalPDFPageLayoutMargins>;
 export {};

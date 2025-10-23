@@ -10,12 +10,10 @@ import { warnError } from "./helpers/warnError";
  * @param options export options
  * @returns a Promise that can be awaited until the file export completes
  */
-export async function downloadSvg(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions) {
+export async function downloadSvg(svg: SVGGraphicsElement | string, svgName: string, options?: SVGExportOptions): Promise<void> {
     const svgElement = getSvgElement(svg);
     if (!svgElement) { return; }
-    if (svgName == null) {
-        svgName = "chart";
-    }
+    const _svgName = svgName ?? "chart";
 
     //get svg element
     const _options = initOptions(svgElement, options);
@@ -25,8 +23,8 @@ export async function downloadSvg(svg: SVGGraphicsElement | string, svgName: str
     const image_promises: Promise<void>[] = [];
     if (images) {
         for (const image of Array.from(images)) {
-            if ((image.getAttribute("href") && image.getAttribute("href")?.indexOf("data:") === -1)
-                || (image.getAttribute("xlink:href") && image.getAttribute("xlink:href")?.indexOf("data:") === -1)) {
+            if ((image.getAttribute("href") && !image.getAttribute("href")?.includes("data:"))
+                || (image.getAttribute("xlink:href") && !image.getAttribute("xlink:href")?.includes("data:"))) {
                 image_promises.push(convertImageURLtoDataURI(image, _options));
             }
         }
@@ -42,10 +40,15 @@ export async function downloadSvg(svg: SVGGraphicsElement | string, svgName: str
     //convert svg string to URI data scheme.
     const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
 
-    triggerDownload(url, svgName + ".svg");
+    triggerDownload(url, _svgName + ".svg");
 }
 
-export function getSvgElement(svg: SVGGraphicsElement | string) {
+/**
+ * Validates an HTML element or string as SVG, and returns the SVG element
+ * @param svg 
+ * @returns 
+ */
+export function getSvgElement(svg: SVGGraphicsElement | string): SVGGraphicsElement | null {
     const div = document.createElement("div");
     div.className = "tempdiv-svg-exportJS";
 
@@ -76,9 +79,19 @@ export function getSvgElement(svg: SVGGraphicsElement | string) {
     return svgClone;
 }
 
-export function setupSvg(svgElement: SVGGraphicsElement, originalSvg: string | SVGGraphicsElement, options: InternalOptions, asElement: true): SVGGraphicsElement;
-export function setupSvg(svgElement: SVGGraphicsElement, originalSvg: string | SVGGraphicsElement, options: InternalOptions): string;
-export function setupSvg(svgElement: SVGGraphicsElement, originalSvg: string | SVGGraphicsElement, options: InternalOptions, asElement?: boolean): string | SVGGraphicsElement {
+/**
+ * Reviews and sets up the properties of the SVG element or string, and optionally converts it into a serialized string
+ * @param svgElement 
+ * @param originalSvg 
+ * @param options 
+ * @param asElement if true, keeps it as an element instead of serializing into a string
+ */
+export function setupSvg(svgElement: SVGGraphicsElement, originalSvg: string | SVGGraphicsElement, 
+    options: InternalOptions, asElement: true): SVGGraphicsElement;
+export function setupSvg(svgElement: SVGGraphicsElement, originalSvg: string | SVGGraphicsElement, 
+    options: InternalOptions): string;
+export function setupSvg(svgElement: SVGGraphicsElement, originalSvg: string | SVGGraphicsElement, 
+    options: InternalOptions, asElement?: boolean): string | SVGGraphicsElement {
     if (options.useCSS && typeof originalSvg === "object") {
         useCSSfromComputedStyles(originalSvg, svgElement, options);
         svgElement.style.display = "";
@@ -93,7 +106,8 @@ export function setupSvg(svgElement: SVGGraphicsElement, originalSvg: string | S
     svgElement.setAttribute("width", options.width?.toString());
     svgElement.setAttribute("height", options.height?.toString());
     svgElement.setAttribute("preserveAspectRatio", "none");
-    svgElement.setAttribute("viewBox", (options.originalMinXViewBox) + " " + (options.originalMinYViewBox) + " " + (options.originalWidth) + " " + (options.originalHeight));
+    svgElement.setAttribute("viewBox", (options.originalMinXViewBox) + " " + (options.originalMinYViewBox) 
+        + " " + (options.originalWidth) + " " + (options.originalHeight));
 
     const elements = document.getElementsByClassName("tempdiv-svg-exportJS");
     while (elements.length > 0) {
