@@ -50,17 +50,26 @@ async function downloadRaster(svg: SVGGraphicsElement | string, svgName: string,
     const _options = initOptions(svgElement, options);
     let svgString = setupSvg(svgElement, svg, _options);
 
+    const hasBackgroundColor = svgElement.style.backgroundColor 
+        && svgElement.style.backgroundColor.toLowerCase().replace(/\s/g, "") !== "rgba(0,0,0,0)" 
+        && svgElement.style.backgroundColor.toLowerCase() !== "transparent";
+
     if (imageType === "jpeg") {
         //change transparent background to white
         svgString = svgString.replace(">", "><rect x=\"0\" y=\"0\" width=\"" 
             + _options.width + "\" height=\"" + _options.height
-            + "\" fill=\"" + _options.transparentBackgroundReplace + "\"/>");
+            + "\" fill=\"" + (hasBackgroundColor ? svgElement.style.backgroundColor : _options.transparentBackgroundReplace) + "\" />");
+    } else if (hasBackgroundColor) {
+        svgString = svgString.replace(">", "><rect x=\"0\" y=\"0\" width=\"" 
+            + _options.width + "\" height=\"" + _options.height + "\" " 
+            + "fill=\"" + svgElement.style.backgroundColor + "\" "
+            + "/>");
     }
 
     const ctx = canvas.getContext("2d");
     const v = canvg.Canvg.fromString(ctx, svgString, { anonymousCrossOrigin: _options.allowCrossOriginImages });
     v.start();
     await v.ready();
-    const image = canvas.toDataURL("image/" + imageType);
-    triggerDownload(image, _svgName + "." + imageType, canvas);
+    const image = canvas.toDataURL("image/" + imageType, 1);
+    triggerDownload(image, _svgName + "." + imageType);
 }

@@ -31,6 +31,5 @@ export declare function getCustomFonts(fontUrls: string[]): Promise<any>[];
  * Trigger a download of a file (represented by data URI) in the browser
  * @param uri
  * @param name
- * @param canvas
  */
-export declare function triggerDownload(uri: string, name: string, canvas?: HTMLCanvasElement): void;
+export declare function triggerDownload(uri: string, name: string): void;

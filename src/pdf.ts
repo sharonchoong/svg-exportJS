@@ -72,7 +72,7 @@ export async function downloadPdf(svg: SVGGraphicsElement | string, svgName: str
             resolve();
         });
     })
-    
+
 }
 
 /**
@@ -90,28 +90,40 @@ async function fillPDFDoc(doc, svgName: string, svg: SVGGraphicsElement, options
         if (Array.isArray(options.pdfOptions.pageLayout.size)) {
             doc.text(svgName,
                 {
-                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left 
+                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left
                         - options.pdfOptions.pageLayout.margins.right
                 });
         }
     }
     // -svg
     const SVGtoPDF = await importDependency("svg-to-pdfkit", "pdf");
+    
+    if (svg.style.backgroundColor && svg.style.backgroundColor.toLowerCase().replace(/\s/g, "") !== "rgba(0,0,0,0)" 
+        && svg.style.backgroundColor.toLowerCase() !== "transparent") {
+            
+        const rgba = svg.style.backgroundColor;
+        doc.rect(options.pdfOptions.pageLayout.margins.left, doc.y + 10, options.width, options.height)
+            .fill(`#${rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/)?.slice(1)
+                .map((n, i) => (i === 3 ? Math.round(parseFloat(n) * 255) 
+                : parseFloat(n)).toString(16).padStart(2, '0').replace('NaN', '')).join('')}`);
+    }
+
     SVGtoPDF(doc, svg, options.pdfOptions.pageLayout.margins.left, doc.y + 10,
         { width: options.width, height: options.height, preserveAspectRatio: "none", useCSS: options.useCSS });
-
+    
     // -caption
     if (options.pdfOptions.chartCaption !== "") {
         doc.font(options.pdfOptions.pdfTextFontFamily)
             .fontSize(options.pdfOptions.pdfCaptionFontSize)
         if (Array.isArray(options.pdfOptions.pageLayout.size)) {
-            doc.text(options.pdfOptions.chartCaption, options.pdfOptions.pageLayout.margins.left,
-                options.pdfOptions.pageLayout.size[1] - options.pdfOptions.pageLayout.margins.bottom 
-                    - options.pdfOptions.pdfCaptionFontSize * 4,
+            doc.fill("black")
+                .text(options.pdfOptions.chartCaption, options.pdfOptions.pageLayout.margins.left,
+                options.pdfOptions.pageLayout.size[1] - options.pdfOptions.pageLayout.margins.bottom
+                - options.pdfOptions.pdfCaptionFontSize * 4,
                 {
-                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left 
+                    width: options.pdfOptions.pageLayout.size[0] - options.pdfOptions.pageLayout.margins.left
                         - options.pdfOptions.pageLayout.margins.right
                 });
-        } 
+        }
     }
 }
