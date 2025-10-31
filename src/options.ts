@@ -39,6 +39,12 @@ export function initOptions(svgElement: SVGGraphicsElement, options?: SVGExportO
         const viewBoxValues = Array.from((svgElement.getAttribute("viewBox") ?? "").matchAll(/\b(\d+)\b/g));
         _options.originalMinXViewBox = viewBoxValues[0]?.[0] ?? "0";
         _options.originalMinYViewBox = viewBoxValues[1]?.[0] ?? "0";
+        if (_options.originalWidth === 0) {
+            _options.originalWidth = Number(viewBoxValues[2]?.[0]) ?? 0;
+        }
+        if (_options.originalHeight === 0) {
+            _options.originalHeight = Number(viewBoxValues[3]?.[0]) ?? 0;
+        }
         
     } else {
         _options.originalMinXViewBox = "0";

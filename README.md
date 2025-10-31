@@ -1,6 +1,6 @@
 # svg-exportJS [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a2677830f9d2432d8061a8151e03fd23)](https://app.codacy.com/gh/sharonchoong/svg-exportJS?utm_source=github.com&utm_medium=referral&utm_content=sharonchoong/svg-exportJS&utm_campaign=Badge_Grade)
 
-An easy-to-use client-side Javascript library to export SVG graphics from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Written in plain vanilla javascript. Originally created to export D3.js charts.
+An easy-to-use client-side Javascript library to export SVG graphics from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Originally created to export D3.js charts.
 
 This library features:
 
@@ -36,8 +36,8 @@ svg-exportJS is offered as a UMD or an ESM module, available in the `dist` folde
 The UMD module is available from this repository (see the `dist/umd` folder), or from CDNs such as jsdelivr.
 
 Two versions are available: 
-- The *main* version is lightweight and requires installing dependencies as needed. 
-- The *standalone* version already pre-installs all dependencies packaged with the library for convenience, at the expense of being memory-heavy.
+- The *main* version is lightweight and requires installing dependencies as needed. It is included in the NPM package manager.
+- The *standalone* version already pre-installs all dependencies packaged with the library for convenience, at the expense of being memory-heavy. It is excluded from the NPM package to reduce the package size.
 
 #### Example 1: main version
 

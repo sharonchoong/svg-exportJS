@@ -1,4 +1,4 @@
-export const version = "2.0.0";
+export const version = "2.1.0";
 
 // bundle font and image files and register them in the virtual fs
 import './registerPdfResources';

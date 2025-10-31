@@ -48,6 +48,32 @@ async function downloadRaster(svg: SVGGraphicsElement | string, svgName: string,
     }
     
     const _options = initOptions(svgElement, options);
+
+    const nestedSvgs = svgElement.getElementsByTagName("svg");
+    for (const nestedSvg of nestedSvgs) {
+        const viewBoxValues = Array.from((nestedSvg.getAttribute("viewBox") ?? "").matchAll(/\b(\d+)\b/g));
+        let nestedSvgWidth = nestedSvg.getAttribute("width");
+        let nestedSvgHeight = nestedSvg.getAttribute("height");
+
+        if (!nestedSvgHeight) {
+            if (nestedSvgWidth && viewBoxValues[3]?.[0]) {
+                nestedSvg.setAttribute("height", (Number(nestedSvgWidth) / Number(viewBoxValues[2]?.[0]) 
+                    * Number(viewBoxValues[3]?.[0])).toString());
+            } else {
+                nestedSvg.setAttribute("height", _options.originalHeight.toString());
+            }
+        }
+        
+        if (!nestedSvgWidth) {
+            if (nestedSvgHeight && !nestedSvgWidth && viewBoxValues[2]?.[0]) {
+                nestedSvg.setAttribute("width", (Number(nestedSvgHeight) / Number(viewBoxValues[3]?.[0]) 
+                    * Number(viewBoxValues[2]?.[0])).toString());
+            } else {
+                nestedSvg.setAttribute("width", _options.originalWidth.toString());
+            }
+        }
+    }
+    
     let svgString = setupSvg(svgElement, svg, _options);
 
     const hasBackgroundColor = svgElement.style.backgroundColor 

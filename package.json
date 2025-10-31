@@ -1,10 +1,11 @@
 {
   "name": "svg-exportjs-browser",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A Javascript library to export svg charts from the DOM and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Can be done all in client-side.",
   "main": "dist/esm/svg-export.esm.min.js",
   "files": [
     "dist/esm",
+    "dist/umd/svg-export.umd.min.js",
     "dist/types"
   ],
   "type": "module",

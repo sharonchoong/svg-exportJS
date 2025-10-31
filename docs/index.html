@@ -7,7 +7,8 @@
         <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/js/pdfkit.standalone.js" integrity="sha256-41qk5dewLKulpzhP3H6G7mY+5q+vzxMaxolsOGmZD/8=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/blob-stream-browserify@0.1.3/index.js" integrity="sha256-bFrIR3MiIsKhM2EDZdTJ3eY7iSluq1W7e6dNVwScEYw=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/gh/sharonchoong/svg-exportJS@master/dist/umd/svg-export.umd.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/svg-exportjs-browser@latest/dist/umd/svg-export.umd.min.js"></script>
+        <!-- <script src="../dist/umd/svg-export.umd.min.js"></script> -->
 
         <style>
             text {
@@ -51,6 +52,9 @@
                     <rect x="50" y="50" stroke="red" fill="url(#pattern)" width="100" height="100"/>
                     <rect x="500" y="50" stroke="red" fill="url(#gradient)" width="50" height="50"/>
                     <image href="images/samuel-pasteur-fosse-N0OOEpR1Lpo-unsplash.jpg" alt="test" x="50" y="250" height="100" width="150"/>
+                    <svg x="500" y="200" style="fill: yellow; stroke: green">
+                        <rect x="100" y="-50" width="100" height="100" style="transform: rotate(45deg)" />
+                    </svg>
                 </svg>
             </div>
         </div>
@@ -66,7 +70,7 @@
         <p>Note: for the "SVG (filtered)" export, circles and the "Subtitle" text with "font-size: 10" are filtered out</p>
     </body>
     <script type="module">
-        // import * as svgExport from "https://cdn.jsdelivr.net/gh/sharonchoong/svg-exportJS@master/dist/esm/svg-export.esm.min.js";
+        // import * as svgExport from "https://cdn.jsdelivr.net/npm/svg-exportjs-browser@latest/dist/esm/svg-export.esm.min.js";
 
         document.querySelector("#btn_export_svg").onclick = async () => {
             await svgExport.downloadSvg(document.querySelector("#mysvg"), "Circles and rectangles chart");
