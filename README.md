@@ -1,4 +1,4 @@
-# svg-exportJS [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a2677830f9d2432d8061a8151e03fd23)](https://app.codacy.com/gh/sharonchoong/svg-exportJS?utm_source=github.com&utm_medium=referral&utm_content=sharonchoong/svg-exportJS&utm_campaign=Badge_Grade)
+# svg-exportJS [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a2677830f9d2432d8061a8151e03fd23)](https://app.codacy.com/gh/sharonchoong/svg-exportJS?utm_source=github.com&utm_medium=referral&utm_content=sharonchoong/svg-exportJS&utm_campaign=Badge_Grade) [![npm version](https://img.shields.io/npm/v/svg-exportjs-browser.svg?style=flat)](https://www.npmjs.com/package/svg-exportjs-browser)
 
 An easy-to-use client-side Javascript library to export SVG graphics from web pages and download them as an SVG file, PDF, or raster image (JPEG, PNG) format. Originally created to export D3.js charts.
 
@@ -25,7 +25,7 @@ svg-exportJS has the following optional third-party dependencies:
 
 Without the above dependencies, this library may only support SVG file exports. 
 
-Note that if you are using NPM to manage package installation and would like to use PDFKit for the browser, you may need to [perform some additional steps](https://github.com/foliojs/pdfkit/wiki/How-to-compile-standalone-PDFKit-for-use-in-the-browser) in addition to `npm install`.
+Note that if you are using NPM to manage package installation and would like to use PDFKit for the browser, you may need to perform some additional steps with [Browserify](https://github.com/foliojs/pdfkit/wiki/How-to-compile-standalone-PDFKit-for-use-in-the-browser) or [Webpack](https://github.com/foliojs/pdfkit/tree/master/examples/webpack), in addition to `npm install pdfkit`.
 
 ## Getting started
 
