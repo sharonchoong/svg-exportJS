@@ -62,7 +62,7 @@ Please note that the CDNs of the dependencies above may not be the most up-to-da
 Place the following script within the `<head>` tag in your html files.
   ```html
   <!-- svg-exportJS library -->
-  <script src="https://cdn.jsdelivr.net/npm/svg-exportjs-browser@latest/dist/umd/svg-export.umd.standalone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/sharonchoong/svg-exportJS@master/dist/umd/svg-export.umd.standalone.min.js"></script>
   ```
 
   That's it! It will come out-of-the-box with SVG, raster and PDF file export with no need to install the third-party dependencies.
