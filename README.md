@@ -52,9 +52,9 @@ Place the following scripts within the `<head>` tag in your html files (place de
   <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
 
   <!-- svg-exportJS library -->
-  <script src="https://cdn.jsdelivr.net/gh/sharonchoong/svg-exportJS@master/dist/umd/svg-export.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-exportjs-browser@latest/dist/umd/svg-export.umd.min.js"></script>
   ```
-Please note that the CDNs of the dependencies above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above.
+Please note that the CDNs of the dependencies above may not be the most up-to-date. The latest source code can be found directly from the github projects, also linked above in the "Dependencies" section.
 
 
 #### Example 2: standalone version
@@ -62,10 +62,10 @@ Please note that the CDNs of the dependencies above may not be the most up-to-da
 Place the following script within the `<head>` tag in your html files.
   ```html
   <!-- svg-exportJS library -->
-  <script src="https://cdn.jsdelivr.net/gh/sharonchoong/svg-exportJS@master/dist/umd/svg-export.umd.standalone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-exportjs-browser@latest/dist/umd/svg-export.umd.standalone.min.js"></script>
   ```
 
-  That's it!
+  That's it! It will come out-of-the-box with SVG, raster and PDF file export with no need to install the third-party dependencies.
 
 ### ESM
 
@@ -92,10 +92,11 @@ Then in your JS script:
 Download the library as a file from the `dist/esm` folder in this repository and save it to your project, as well as any dependencies required. Then, import the module in your JS script.
   ```javascript
   import * as svgExport from "path/to/the/file/svg-export.esm.min.js";
-  
-  // or
+  ```
 
-  import { downloadSvg, downloadPng, downloadJpeg, downloadPdf } from "path/to/the/file/svg-export.esm.min.js";
+#### Example 3: from CDN
+  ```javascript
+  import * as svgExport from "https://cdn.jsdelivr.net/npm/svg-exportjs-browser@latest/dist/esm/svg-export.esm.min.js";
   ```
 
 ## Usage
