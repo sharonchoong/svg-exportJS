@@ -33,7 +33,7 @@ svg-exportJS is offered as a UMD or an ESM module, available in the `dist` folde
 
 ### UMD
 
-The UMD module is available from this repository (see the `dist/umd` folder), or from CDNs such as jsdelivr.
+The UMD module is available from this repository (see the `dist/umd` folder), or from CDNs such as [jsdelivr](https://www.jsdelivr.com/package/npm/svg-exportjs-browser).
 
 Two versions are available: 
 - The *main* version is lightweight and requires installing dependencies as needed. It is included in the NPM package manager.
